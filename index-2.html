@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dikotik Dinleme Izmir</title></head>
+<body>
+<h1>Dikotik Dinleme Izmir</h1>
+
+<div id="participantCard">
+  <input id="name" placeholder="Ad">
+  <input id="surname" placeholder="Soyad">
+  <button id="makeCodeBtn">Katılımcı Kodunu Oluştur</button>
+  <div id="codeInfo"></div>
+</div>
+
+<div id="hearingCard" style="display:none">
+  <p>İşitme bilgileri ekranı...</p>
+</div>
+
+<script>
+let participant={};
+function makeParticipantCode(){
+  const name=(document.getElementById('name').value||'').trim();
+  const surname=(document.getElementById('surname').value||'').trim();
+  const n2=(name.padEnd(2).slice(0,2)).toUpperCase();
+  const s2=(surname.padEnd(2).slice(0,2)).toUpperCase();
+  const four=(n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);
+  const rand5=Math.floor(10000+Math.random()*90000);
+  const code=four+'_'+String(rand5);
+  participant.code=code;
+  participant.four=four;
+  participant.rand5=rand5;
+  document.getElementById('codeInfo').innerText="Katılımcı kodu: "+code;
+  return code;
+}
+
+document.getElementById('makeCodeBtn').addEventListener('click', ()=>{ 
+  const code=makeParticipantCode(); 
+  alert("Katılımcı kodunuz: "+code); 
+  document.getElementById('participantCard').style.display='none'; 
+  document.getElementById('hearingCard').style.display='block'; 
+});
+</script>
+
+</body>
+</html>
