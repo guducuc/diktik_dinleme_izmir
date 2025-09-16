@@ -19,7 +19,13 @@ let audioCtx=null,participant={},sessionOrder=[],currentSessionIndex=0,sessionTr
 const logEl=document.getElementById('log'),codeInfo=document.getElementById('codeInfo'),makeCodeBtn=document.getElementById('makeCodeBtn'),startFreeBtn=document.getElementById('startFreeBtn'),toCalibBtn=document.getElementById('toCalib'),playLeftBtn=document.getElementById('playLeft'),playRightBtn=document.getElementById('playRight'),toSessionPrep=document.getElementById('toSessionPrep'),beginSessionBtn=document.getElementById('beginSession'),responsesEl=document.getElementById('responses'),instrTitle=document.getElementById('instrTitle'),instrText=document.getElementById('instrText'),statusEl=document.getElementById('status'),downloadBtn=document.getElementById('downloadBtn'),emailBtn=document.getElementById('emailBtn'),doneLog=document.getElementById('doneLog');
 function makeParticipantCode(){const name=(document.getElementById('name').value||'').trim();const surname=(document.getElementById('surname').value||'').trim();const n2=(name.padEnd(2).slice(0,2)).toUpperCase();const s2=(surname.padEnd(2).slice(0,2)).toUpperCase();const four=(n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);const rand5=Math.floor(10000+Math.random()*90000);const code=four+'_'+String(rand5);participant.code=code;participant.four=four;participant.rand5=rand5;participant.name=name;participant.surname=surname;codeInfo.innerText=`Katılımcı kodu: ${code}`;log(`Katılımcı kodu oluşturuldu: ${code}`);}
 startFreeBtn.addEventListener('click', ()=>{ makeParticipantCode(); showHearingCard(); });
-makeCodeBtn.addEventListener('click', ()=>{ makeParticipantCode(); showHearingCard(); });
+makeCodeBtn.addEventListener('click', ()=>{ 
+  makeParticipantCode();
+  // önce kodu gösterelim
+  alert("Katılımcı kodunuz: " + participant.code);
+  // sonra sonraki ekrana geçelim
+  showHearingCard(); 
+});
 function showHearingCard(){ document.getElementById('participantCard').style.display='none'; document.getElementById('hearingCard').style.display='block'; }
 toCalibBtn.addEventListener('click', ()=>{ participant.hearingLoss=document.getElementById('hearingLoss').value; participant.whichEar=document.getElementById('whichEar').value; showCalib(); });
 function showCalib(){ document.getElementById('hearingCard').style.display='none'; document.getElementById('calibCard').style.display='block'; ensureAudio(); }
