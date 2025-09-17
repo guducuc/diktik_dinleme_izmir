@@ -83,7 +83,7 @@ let sessionOrder = [];
 let currentSessionIndex = 0;
 let rightLevel = 0.5, leftLevel = 0.5;
 
-// Playlist
+// Playlist (ses dosyaları public/sounds/ klasöründe olmalı)
 const playlist = [
   "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav",
   "LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav",
@@ -119,12 +119,46 @@ document.getElementById('makeCodeBtn').addEventListener('click', ()=>{
   document.getElementById('hearingCard').classList.remove("hidden");
 });
 
-// İşitme kontrolü (sadece slider değerleri kaydedilecek)
-document.getElementById('rightSlider').addEventListener('input', e=>{ rightLevel=e.target.value; });
-document.getElementById('leftSlider').addEventListener('input', e=>{ leftLevel=e.target.value; });
+// Web Audio API ile 1500 Hz tonu (kanallı)
+let ctx = new (window.AudioContext||window.webkitAudioContext)();
+let rightOsc=null,leftOsc=null,rightGain=null,leftGain=null;
+
+function startTone(channel){
+  if(channel==="right" && !rightOsc){
+    rightOsc=ctx.createOscillator(); rightGain=ctx.createGain();
+    rightOsc.type="sine"; rightOsc.frequency.value=1500;
+    rightGain.gain.value=rightLevel;
+    let merger=ctx.createChannelMerger(2);
+    rightOsc.connect(rightGain); rightGain.connect(merger,0,1);
+    merger.connect(ctx.destination);
+    rightOsc.start();
+  }
+  if(channel==="left" && !leftOsc){
+    leftOsc=ctx.createOscillator(); leftGain=ctx.createGain();
+    leftOsc.type="sine"; leftOsc.frequency.value=1500;
+    leftGain.gain.value=leftLevel;
+    let merger=ctx.createChannelMerger(2);
+    leftOsc.connect(leftGain); leftGain.connect(merger,0,0);
+    merger.connect(ctx.destination);
+    leftOsc.start();
+  }
+}
+function stopTone(channel){
+  if(channel==="right" && rightOsc){ rightOsc.stop(); rightOsc=null; }
+  if(channel==="left" && leftOsc){ leftOsc.stop(); leftOsc=null; }
+}
+
+document.getElementById('playRight').addEventListener('click', ()=>{
+  if(rightOsc){ stopTone("right"); } else { startTone("right"); }
+});
+document.getElementById('playLeft').addEventListener('click', ()=>{
+  if(leftOsc){ stopTone("left"); } else { startTone("left"); }
+});
+document.getElementById('rightSlider').addEventListener('input', e=>{ rightLevel=e.target.value; if(rightGain) rightGain.gain.value=rightLevel; });
+document.getElementById('leftSlider').addEventListener('input', e=>{ leftLevel=e.target.value; if(leftGain) leftGain.gain.value=leftLevel; });
 
 document.getElementById('toSessionIntro').addEventListener('click', ()=>{
-  // İşitme bilgilerini CSV’nin ilk satırına ekle
+  // İşitme bilgisi ilk satıra
   results.unshift({
     session:"hearing", trial:0, stim:"1500Hz", 
     response:`right=${rightLevel},left=${leftLevel}`,
@@ -133,7 +167,6 @@ document.getElementById('toSessionIntro').addEventListener('click', ()=>{
   log("İşitme bilgisi kaydedildi: sağ="+rightLevel+", sol="+leftLevel);
 
   document.getElementById('hearingCard').classList.add("hidden");
-  // oturum sırası
   const second = Math.random()<0.5 ? "FR" : "FL";
   const third = second==="FR" ? "FL" : "FR";
   sessionOrder=["NF",second,third];
@@ -208,7 +241,7 @@ function endExperiment(){
   log("Deney tamamlandı, "+results.length+" yanıt kaydedildi.");
 }
 
-// CSV indirme
+// CSV indirme (dosya adı katılımcı kodu + zaman)
 document.getElementById('downloadBtn').addEventListener('click', ()=>{
   if(results.length===0){alert("Henüz sonuç yok");return;}
   const keys=Object.keys(results[0]);
@@ -217,10 +250,15 @@ document.getElementById('downloadBtn').addEventListener('click', ()=>{
   const csv=[header,...rows].join('\\n');
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
+
+  const now=new Date();
+  const stamp=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0")+"_"+String(now.getHours()).padStart(2,"0")+"-"+String(now.getMinutes()).padStart(2,"0");
+  const filename=participant.code+"_"+stamp+".csv";
+
   const a=document.createElement('a');
-  a.href=url;a.download=participant.code+"_results.csv";a.click();
+  a.href=url;a.download=filename;a.click();
   URL.revokeObjectURL(url);
-  log("CSV indirildi.");
+  log("CSV indirildi: "+filename);
 });
 
 // EmailJS
