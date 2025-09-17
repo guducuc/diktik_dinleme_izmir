@@ -1,50 +1,151 @@
 <!doctype html>
 <html lang="tr">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Dikotik Dinleme Izmir</title>
-<style>:root{--bg:#071029;--card:#081428;--text:#e6eef8;--muted:#98a8bf;--accent:#3b82f6}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071029 0%,#0b1320 100%);color:var(--text)}.container{max-width:920px;margin:12px auto;padding:12px}.card{background:rgba(255,255,255,0.02);border-radius:12px;padding:12px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03)}h1{margin:0 0 6px;font-size:20px}.label{font-size:13px;color:var(--muted);margin-bottom:6px}.row{display:flex;gap:8px;flex-wrap:wrap}.col{flex:1;min-width:140px}input,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}button{padding:10px 12px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:600}button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}.small{font-size:13px;color:var(--muted)}#responses{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.respBtn{padding:14px;border-radius:10px;font-size:18px;border:none;background:rgba(255,255,255,0.03);color:var(--text)}@media (max-width:520px){#responses{grid-template-columns:repeat(2,1fr)}}#log{white-space:pre-wrap;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;height:140px;overflow:auto;color:var(--muted);font-size:13px}.sliderRow{display:flex;align-items:center;gap:8px}.sliderRow input[type=range]{flex:1}.infoSmall{font-size:13px;color:var(--muted);margin-top:6px}</style></head>
-<body><div class="container"><h1>Dikotik Dinleme Izmir</h1>
-<div class="card" id="participantCard"><div class="label">Katılımcı Bilgileri</div><div class="row"><div class="col"><input id="name" placeholder="Ad" maxlength="50"></div><div class="col"><input id="surname" placeholder="Soyad" maxlength="50"></div></div><div class="row" style="margin-top:8px"><div class="col"><input id="email" placeholder="E-posta (opsiyonel)"></div><div class="col"><select id="gender"><option value="">Cinsiyet</option><option value="male">Erkek</option><option value="female">Kadın</option><option value="other">Diğer</option><option value="na">Belirtmek istemiyorum</option></select></div></div><div class="row" style="margin-top:8px"><div class="col"><input id="age" type="number" min="6" max="120" placeholder="Yaş"></div><div class="col"><input id="race" placeholder="Irk / etnik köken (opsiyonel)"></div></div><div style="margin-top:8px"><input id="nativeLang" placeholder="Anadil (örn. Türkçe)" /></div><div style="margin-top:10px" class="row"><button id="makeCodeBtn">Katılımcı Kodunu Oluştur</button><button id="startFreeBtn" class="ghost">Hazır/Atla (kod oluşturulmadan devam etme)</button></div><div id="codeInfo" class="infoSmall"></div></div>
-<div class="card" id="hearingCard" style="display:none"><div class="label">İşitme Durumu</div><div class="row"><div class="col"><select id="hearingLoss"><option value="no">İşitme kaybı yok</option><option value="yes">İşitme kaybı var</option></select></div><div class="col"><select id="whichEar"><option value="">Hangi kulak?</option><option value="left">Sol</option><option value="right">Sağ</option><option value="both">Her iki</option></select></div></div><div style="margin-top:10px"><button id="toCalib" class="ghost">İleri: Ses Kalibrasyonu</button></div></div>
-<div class="card" id="calibCard" style="display:none"><div class="label">1500 Hz Kalibrasyonu</div><div class="infoSmall">Önce sol, sonra sağ kulağa 1500 Hz ton verilecek. Her iki kulakta da rahat duyduğunuz ses seviyesini slider ile ayarlayın.</div><div style="margin-top:10px" class="sliderRow"><div class="small">Sol</div><input id="leftSlider" type="range" min="0" max="1" step="0.01" value="0.5"><div class="small" id="leftVal">0.50</div></div><div style="margin-top:8px" class="sliderRow"><div class="small">Sağ</div><input id="rightSlider" type="range" min="0" max="1" step="0.01" value="0.5"><div class="small" id="rightVal">0.50</div></div><div style="margin-top:10px" class="row"><button id="playLeft" class="ghost">Solda 1500Hz Çal</button><button id="playRight" class="ghost">Sağda 1500Hz Çal</button><button id="toSessionPrep">İleri: Deney Oturumlarına Geç</button></div></div>
-<div class="card" id="sessionPrep" style="display:none"><div class="label">Oturum Hazırlığı</div><div class="infoSmall">Sıralama: NF → (rastgele FR veya FL) → kalan oturum.</div><div style="margin-top:8px" id="sessionOrder"></div><div style="margin-top:10px" class="row"><button id="beginSession" class="primary">İlk oturuma başla</button></div></div>
-<div class="card" id="trialCard" style="display:none"><div class="label" id="instrTitle">Yönerge</div><div id="instrText" class="infoSmall" style="margin-top:8px"></div><div id="status" class="small" style="margin-top:8px"></div><div id="responses"><button class="respBtn" data-val="BA">BA</button><button class="respBtn" data-val="DA">DA</button><button class="respBtn" data-val="GA">GA</button><button class="respBtn" data-val="KA">KA</button><button class="respBtn" data-val="PA">PA</button><button class="respBtn" data-val="TA">TA</button></div></div>
-<div class="card" id="endCard" style="display:none"><div class="label">Deney tamamlandı</div><div class="infoSmall">Yanıtlar yerel olarak kaydedildi. Aşağıdan CSV indirebilir veya e-posta ile gönderilmesini isteyebilirsiniz.</div><div style="margin-top:10px" class="row"><button id="downloadBtn">CSV İndir</button><button id="emailBtn" class="ghost">E-posta Gönder (ayar gerekli)</button></div><div id="doneLog" class="infoSmall" style="margin-top:8px"></div></div>
-<div class="card"><div class="label">Log</div><div id="log">Henüz kayıt yok.</div></div></div>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dikotik Dinleme Izmir</title>
+</head>
+<body>
+<h1>Dikotik Dinleme Izmir</h1>
+
+<div id="participantCard">
+  <input id="name" placeholder="Ad">
+  <input id="surname" placeholder="Soyad">
+  <input id="email" placeholder="E-posta (opsiyonel)">
+  <button id="makeCodeBtn">Katılımcı Kodunu Oluştur</button>
+  <div id="codeInfo"></div>
+</div>
+
+<div id="hearingCard" style="display:none">
+  <p>İşitme bilgileri ekranı...</p>
+  <button id="toEnd">Devam Et</button>
+</div>
+
+<div id="endCard" style="display:none">
+  <p>Deney tamamlandı ✅</p>
+  <button id="downloadBtn">CSV İndir</button>
+  <button id="emailBtn">E-posta Gönder</button>
+  <div id="doneLog"></div>
+</div>
+
+<div class="card">
+  <div class="label">Log</div>
+  <div id="log">Henüz kayıt yok.</div>
+</div>
+
 <script>
+let participant = {};
+let results = [];
+
+// Playlist array (Playlist-2.txt içinden alındı)
 const playlist = [
-"LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav","LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav","LKA-RKA.wav","LBA-RGA.wav","LKA-RPA.wav","LTA-RDA.wav","LGA-RKA.wav","LPA-RDA.wav","LGA-RGA.wav","LBA-RTA.wav","LGA-RDA.wav","LKA-RTA.wav","LDA-RPA.wav","LTA-RKA.wav","LPA-RPA.wav","LDA-RBA.wav","LGA-RTA.wav","LPA-RKA.wav","LTA-RBA.wav","LKA-RGA.wav","LTA-RTA.wav","LBA-RPA.wav","LDA-RTA.wav","LGA-RBA.wav","LTA-RPA.wav","LDA-RDA.wav","LKA-RBA.wav","LPA-RGA.wav"
+  "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav",
+  "LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav",
+  "LKA-RKA.wav","LBA-RGA.wav","LKA-RPA.wav","LTA-RDA.wav","LGA-RKA.wav",
+  "LPA-RDA.wav","LGA-RGA.wav","LBA-RTA.wav","LGA-RDA.wav","LKA-RTA.wav",
+  "LDA-RPA.wav","LTA-RKA.wav","LPA-RPA.wav","LDA-RBA.wav","LGA-RTA.wav",
+  "LPA-RKA.wav","LTA-RBA.wav","LDA-RTA.wav","LTA-RPA.wav","LKA-RGA.wav",
+  "LGA-RBA.wav","LKA-RBA.wav","LTA-RTA.wav","LGA-RLA.wav","LDA-RLA.wav",
+  "LKA-RLA.wav"
 ];
-function parsePair(fn){const base=fn.replace('.wav','');const parts=base.split('-');const left=parts[0].replace(/^L/,'');const right=parts[1].replace(/^R/,'');return {leftToken:left,rightToken:right,leftFile:fn,rightFile:fn};}
-let audioCtx=null,participant={},sessionOrder=[],currentSessionIndex=0,sessionTrials=[],trialIndex=0,trialStartTime=0,results=[],preloaded={};
-const logEl=document.getElementById('log'),codeInfo=document.getElementById('codeInfo'),makeCodeBtn=document.getElementById('makeCodeBtn'),startFreeBtn=document.getElementById('startFreeBtn'),toCalibBtn=document.getElementById('toCalib'),playLeftBtn=document.getElementById('playLeft'),playRightBtn=document.getElementById('playRight'),toSessionPrep=document.getElementById('toSessionPrep'),beginSessionBtn=document.getElementById('beginSession'),responsesEl=document.getElementById('responses'),instrTitle=document.getElementById('instrTitle'),instrText=document.getElementById('instrText'),statusEl=document.getElementById('status'),downloadBtn=document.getElementById('downloadBtn'),emailBtn=document.getElementById('emailBtn'),doneLog=document.getElementById('doneLog');
-function makeParticipantCode(){const name=(document.getElementById('name').value||'').trim();const surname=(document.getElementById('surname').value||'').trim();const n2=(name.padEnd(2).slice(0,2)).toUpperCase();const s2=(surname.padEnd(2).slice(0,2)).toUpperCase();const four=(n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);const rand5=Math.floor(10000+Math.random()*90000);const code=four+'_'+String(rand5);participant.code=code;participant.four=four;participant.rand5=rand5;participant.name=name;participant.surname=surname;codeInfo.innerText=`Katılımcı kodu: ${code}`;log(`Katılımcı kodu oluşturuldu: ${code}`);}
-startFreeBtn.addEventListener('click', ()=>{ makeParticipantCode(); showHearingCard(); });
-makeCodeBtn.addEventListener('click', ()=>{ 
-  makeParticipantCode();
-  // önce kodu gösterelim
-  alert("Katılımcı kodunuz: " + participant.code);
-  // sonra sonraki ekrana geçelim
-  showHearingCard(); 
+
+// Log helper
+function log(msg){
+  const el = document.getElementById('log');
+  el.innerHTML += "<br>" + msg;
+}
+
+// Katılımcı kodu üretme
+function makeParticipantCode(){
+  const name = (document.getElementById('name').value||'').trim();
+  const surname = (document.getElementById('surname').value||'').trim();
+  const n2 = (name.padEnd(2).slice(0,2)).toUpperCase();
+  const s2 = (surname.padEnd(2).slice(0,2)).toUpperCase();
+  const four = (n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);
+  const rand5 = Math.floor(10000+Math.random()*90000);
+  const code = four+'_'+String(rand5);
+  participant.code = code;
+  participant.four = four;
+  participant.rand5 = rand5;
+  document.getElementById('codeInfo').innerText = "Katılımcı kodu: "+code;
+  log("Katılımcı kodu oluşturuldu: "+code);
+  return code;
+}
+
+document.getElementById('makeCodeBtn').addEventListener('click', ()=>{ 
+  const code = makeParticipantCode(); 
+  alert("Katılımcı kodunuz: "+code); 
+  document.getElementById('participantCard').style.display='none'; 
+  document.getElementById('hearingCard').style.display='block'; 
 });
-function showHearingCard(){ document.getElementById('participantCard').style.display='none'; document.getElementById('hearingCard').style.display='block'; }
-toCalibBtn.addEventListener('click', ()=>{ participant.hearingLoss=document.getElementById('hearingLoss').value; participant.whichEar=document.getElementById('whichEar').value; showCalib(); });
-function showCalib(){ document.getElementById('hearingCard').style.display='none'; document.getElementById('calibCard').style.display='block'; ensureAudio(); }
-function ensureAudio(){ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } }
-const leftSlider=document.getElementById('leftSlider'),rightSlider=document.getElementById('rightSlider');leftSlider.addEventListener('input', ()=>{ document.getElementById('leftVal').innerText = parseFloat(leftSlider.value).toFixed(2); });rightSlider.addEventListener('input', ()=>{ document.getElementById('rightVal').innerText = parseFloat(rightSlider.value).toFixed(2); });playLeftBtn.addEventListener('click', ()=>{ playTone('left'); });playRightBtn.addEventListener('click', ()=>{ playTone('right'); });
-function playTone(side){ ensureAudio(); const now=audioCtx.currentTime; const osc=audioCtx.createOscillator(); osc.type='sine'; osc.frequency.value=1500; const gain=audioCtx.createGain(); const panner=audioCtx.createStereoPanner(); panner.pan.value=(side==='left'? -1:1); gain.gain.value=(side==='left'? parseFloat(leftSlider.value): parseFloat(rightSlider.value)); osc.connect(gain); gain.connect(panner); panner.connect(audioCtx.destination); osc.start(now); osc.stop(now+1.0); }
-toSessionPrep.addEventListener('click', ()=>{ participant.leftLevel=parseFloat(leftSlider.value); participant.rightLevel=parseFloat(rightSlider.value); showSessionPrep(); });
-function showSessionPrep(){ document.getElementById('calibCard').style.display='none'; document.getElementById('sessionPrep').style.display='block'; sessionOrder=['NF']; const second=Math.random()<0.5? 'FR':'FL'; sessionOrder.push(second); sessionOrder.push(second==='FR'? 'FL':'FR'); document.getElementById('sessionOrder').innerText='Sıralama: '+sessionOrder.join(' → '); log('Oturum sıralaması: '+sessionOrder.join(',')); }
-beginSessionBtn.addEventListener('click', async ()=>{ document.getElementById('sessionPrep').style.display='none'; document.getElementById('trialCard').style.display='block'; const per=Math.ceil(playlist.length/3); const a=playlist.slice(0,per); const b=playlist.slice(per,per*2); const c=playlist.slice(per*2); const map={'NF': a.slice(),'FR': b.slice(),'FL': c.slice()}; sessionTrials=map[ sessionOrder[currentSessionIndex] ]; await preloadAll(playlist); showInstructionFor(sessionOrder[currentSessionIndex]); trialIndex=0; results=[]; });
-function showInstructionFor(sessionName){ let title=sessionName; let text=''; if(sessionName==='NF'){ text='Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen en iyi duyduğunuz heceyi ilgili düğmeye basarak işaretleyiniz.'; } else if(sessionName==='FR'){ text='Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen sağ kulağınıza odaklanın ve sağ kulağınızdan duyduğunuz heceyi ilgili düğmeye basarak işaretleyiniz.'; } else if(sessionName==='FL'){ text='Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen sol kulağınıza odaklanın ve sol kulağınızdan duyduğunuz heceyi ilgili düğmeye basarak işaretleyiniz.'; } instrTitle.innerText=title; instrText.innerText=text; statusEl.innerText='Hazır olduğunuzda kayıt başlatılacaktır.'; const b=document.createElement('button'); b.innerText='Başlat'; b.className='ghost'; b.style.marginTop='8px'; b.onclick=()=>{ b.remove(); startTrialsForCurrentSession(); }; instrText.appendChild(document.createElement('div')).appendChild(b); }
-async function preloadAll(list){ ensureAudio(); const unique=Array.from(new Set(list)); for(const fn of unique){ if(preloaded[fn]) continue; try{ const url='./sounds/'+fn; const resp=await fetch(url); if(!resp.ok){ log('Ses dosyası bulunamadı: '+fn); continue; } const ab=await resp.arrayBuffer(); const buf=await audioCtx.decodeAudioData(ab.slice(0)); preloaded[fn]=buf; log('Yüklendi: '+fn); }catch(err){ console.error(err); log('Yükleme hatası: '+fn+' — '+err); } } }
-async function startTrialsForCurrentSession(){ statusEl.innerText=`Oturum ${sessionOrder[currentSessionIndex]} başladı. Toplam ${sessionTrials.length} trial.`; await runTrial(); }
-async function runTrial(){ if(trialIndex>=sessionTrials.length){ log('Oturum tamamlandı: '+sessionOrder[currentSessionIndex]); const ready=confirm('Oturum bitti. Sonraki oturuma geçmek için Hazır mısınız? (Tamam = evet)'); if(ready){ currentSessionIndex++; if(currentSessionIndex>=sessionOrder.length){ endExperiment(); return; }else{ sessionTrials=getTrialsFor(sessionOrder[currentSessionIndex]); trialIndex=0; showInstructionFor(sessionOrder[currentSessionIndex]); return; } } else { statusEl.innerText='Bir sonraki oturum için hazır değilsiniz. Hazır olduğunuzda devam edin.'; const cont=confirm('Hazır olduğunuzda devam etmek için Tamam a basın.'); if(cont){ currentSessionIndex++; if(currentSessionIndex>=sessionOrder.length){ endExperiment(); return; } sessionTrials=getTrialsFor(sessionOrder[currentSessionIndex]); trialIndex=0; showInstructionFor(sessionOrder[currentSessionIndex]); } return; } } const fn=sessionTrials[trialIndex]; const parsed=parsePair(fn); const buf=preloaded[fn]; if(!buf){ log('Buffer yok: '+fn); trialIndex++; setTimeout(()=>runTrial(),500); return; } ensureAudio(); const now=audioCtx.currentTime+0.05; const srcL=audioCtx.createBufferSource(); srcL.buffer=buf; const pL=audioCtx.createStereoPanner(); pL.pan.value=-1; srcL.connect(pL).connect(audioCtx.destination); const srcR=audioCtx.createBufferSource(); srcR.buffer=buf; const pR=audioCtx.createStereoPanner(); pR.pan.value=1; srcR.connect(pR).connect(audioCtx.destination); srcL.start(now); srcR.start(now); const stimDur=buf.duration; document.getElementById('responses').style.display='none'; statusEl.innerText=`Trial ${trialIndex+1}/${sessionTrials.length} oynatılıyor...`; setTimeout(()=>{ document.getElementById('responses').style.display='grid'; statusEl.innerText='Cevabınızı veriniz.'; trialStartTime=performance.now(); }, (stimDur+0.05)*1000); const respTimeout=6000; const to=setTimeout(()=>{ recordResponse('NO_RESPONSE', parsed); }, (stimDur+respTimeout+0.05)*1000); const buttons=document.querySelectorAll('.respBtn'); const handler=(e)=>{ clearTimeout(to); const val=e.currentTarget.dataset.val; recordResponse(val, parsed); }; buttons.forEach(b=>b.addEventListener('click', handler, {once:true})); }
-function getTrialsFor(name){ const per=Math.ceil(playlist.length/3); const a=playlist.slice(0,per); const b=playlist.slice(per,per*2); const c=playlist.slice(per*2); const map={'NF': a.slice(),'FR': b.slice(),'FL': c.slice()}; return map[name]; }
-function recordResponse(choice, parsedPair){ const rt= choice==='NO_RESPONSE' ? '' : Math.round(performance.now()-trialStartTime); const trialFn=sessionTrials[trialIndex]; const parsed=parsedPair || parsePair(trialFn); const rec={ participant_code: participant.code || '', assigned_number: participant.rand5 || '', session: sessionOrder[currentSessionIndex], trial_in_session: trialIndex+1, filename: trialFn, leftToken: parsed.leftToken, rightToken: parsed.rightToken, choice: choice, rt_ms: rt, timestamp: new Date().toISOString() }; rec.age=document.getElementById('age').value||''; rec.gender=document.getElementById('gender').value||''; rec.nativeLang=document.getElementById('nativeLang').value||''; rec.hearingLoss=participant.hearingLoss||''; rec.whichEar=participant.whichEar||''; rec.leftLevel=participant.leftLevel||''; rec.rightLevel=participant.rightLevel||''; results.push(rec); log('Kayıt: '+JSON.stringify(rec)); trialIndex++; const isi=4000+Math.random()*2000; setTimeout(()=>runTrial(), isi); }
-function endExperiment(){ document.getElementById('trialCard').style.display='none'; document.getElementById('endCard').style.display='block'; try{ localStorage.setItem('dikotrik_results', JSON.stringify(results)); }catch(e){} doneLog.innerText=`Toplam ${results.length} kayıt alındı. Katılımcı kodu: ${participant.code||''}`; log('Deney tamamlandı. Sonuçlar saklandı.'); }
-downloadBtn.addEventListener('click', ()=>{ if(results.length===0){ alert('Henüz sonuç yok'); return; } const keys=Object.keys(results[0]); const header=keys.join(','); const rows=results.map(r=>keys.map(k=>String(r[k]??'')).map(s=>s.replace(/,/g,'')).join(',')); const csv=[header,...rows].join('
-'); const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(participant.code||'results')+'.csv'; a.click(); });
-emailBtn.addEventListener('click', async ()=>{ if(results.length===0){ alert('Henüz sonuç yok'); return; } const keys=Object.keys(results[0]); const header=keys.join(','); const rows=results.map(r=>keys.map(k=>String(r[k]??'')).map(s=>s.replace(/,/g,'')).join(',')); const csv=[header,...rows].join('
-'); const EMAILJS_USER='FLn2zMqKDGso3ePoO'; const EMAILJS_SERVICE='service_a8bnfmk'; const EMAILJS_TEMPLATE='template_7elc4wi'; if(EMAILJS_USER.startsWith('YOUR_')){ alert('E-posta göndermek için EmailJS bilgilerini README dosyasındaki talimatlara göre doldurun.'); return; } try{ if(!window.emailjs){ await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdn.emailjs.com/dist/email.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); } emailjs.init(EMAILJS_USER); const toAddress=document.getElementById('email').value||''; const templateParams={ to_email: toAddress, subject: 'Dikotik Dinleme İzmir sonuçları - '+(participant.code||''), message: csv }; const resp=await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams); alert('E-posta gönderildi (EmailJS).'); log('EmailJS gönderim cevabı: '+JSON.stringify(resp)); }catch(err){ console.error(err); alert('E-posta gönderilirken hata: '+err); } });
-function log(txt){ const el=logEl; el.innerText=(el.innerText==='Henüz kayıt yok.'? '' : el.innerText+'\n')+txt; el.scrollTop=el.scrollHeight; }
-</script></body></html>
+
+document.getElementById('toEnd').addEventListener('click', ()=>{
+  // playlist'ten örnek yanıt ekleme
+  results.push({trial:1, stim:playlist[0], response:"BA"});
+  document.getElementById('hearingCard').style.display='none';
+  document.getElementById('endCard').style.display='block';
+  log("Deney tamamlandı, sonuç kaydedildi.");
+});
+
+// CSV indirme
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  if(results.length===0){alert("Henüz sonuç yok");return;}
+  const keys=Object.keys(results[0]);
+  const header=keys.join(',');
+  const rows=results.map(r=>keys.map(k=>String(r[k]??'')).join(','));
+  const csv=[header,...rows].join('\\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=participant.code+"_results.csv";a.click();
+  URL.revokeObjectURL(url);
+  log("CSV indirildi.");
+});
+
+// EmailJS gönderimi
+document.getElementById('emailBtn').addEventListener('click', async ()=>{
+  if(results.length===0){alert("Henüz sonuç yok");return;}
+  const keys=Object.keys(results[0]);
+  const header=keys.join(',');
+  const rows=results.map(r=>keys.map(k=>String(r[k]??'')).join(','));
+  const csv=[header,...rows].join('\\n');
+
+  // Senin index-3.html dosyanda zaten doldurduğun değerler olmalı
+  const EMAILJS_USER    = "FLn2zMqKDGso3ePoO";
+  const EMAILJS_SERVICE = "service_a8bnfmk";
+  const EMAILJS_TEMPLATE= "template_7elc4wi";
+
+  if(EMAILJS_USER.startsWith("YOUR_")){
+    alert("E-posta için EmailJS bilgilerini doldurun.");
+    return;
+  }
+
+  try {
+    if(!window.emailjs){
+      await new Promise((res,rej)=>{
+        const s=document.createElement("script");
+        s.src="https://cdn.emailjs.com/dist/email.min.js";
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+    }
+    emailjs.init(EMAILJS_USER);
+    const toAddress = document.getElementById('email').value||"";
+    const templateParams = {
+      to_email: toAddress,
+      subject: participant.code||"",
+      message: csv
+    };
+    const resp = await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,templateParams);
+    alert("E-posta gönderildi ✅");
+    document.getElementById('doneLog').innerText="EmailJS cevabı: "+JSON.stringify(resp);
+    log("E-posta gönderildi: "+JSON.stringify(resp));
+  }catch(err){
+    alert("E-posta gönderilemedi: "+err);
+    log("E-posta hatası: "+err);
+  }
+});
+</script>
+
+</body>
+</html>
