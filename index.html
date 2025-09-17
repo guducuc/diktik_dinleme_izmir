@@ -218,7 +218,7 @@ function nextTrial(){
   const stim=playlist[currentTrial];
   document.getElementById('trialStatus').innerText="Deneme "+(currentTrial+1)+" / "+playlist.length+" ("+sessionOrder[currentSessionIndex]+")";
   const audioEl=document.getElementById('stimAudio');
-  audioEl.src="sounds/"+stim;
+  audioEl.src="/sounds/"+stim;
   audioEl.play();
   log("Çalınıyor: "+stim+" ("+sessionOrder[currentSessionIndex]+")");
 }
