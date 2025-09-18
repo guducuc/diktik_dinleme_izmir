@@ -311,17 +311,25 @@ async function unlockAudioForPlayback(){
     log("Audio unlock failed or not necessary: " + (e && e.message ? e.message : e));
   }
 }
+$id('sessionStartBtn').addEventListener('click', async (ev) => {
+    $id('sessionIntro').classList.add('hidden');
+    
+    // Seslerin hazırlanıyor olduğuna dair bir mesaj gösterebiliriz
+    // Şu an için sadece konsola log gönderelim.
+    log("Ses çalma izni alınıyor...");
 
-$id('sessionStartBtn').addEventListener('click', async (ev)=>{
-  $id('sessionIntro').classList.add('hidden');
-  // burada synchronous user gesture var -> unlock audio
-  await unlockAudioForPlayback();
-  // show wait + 10s hidden countdown
-  $id('waitScreen').classList.remove('hidden');
-  setTimeout(()=>{
-    $id('waitScreen').classList.add('hidden');
-    startSession();
-  },10000);
+    // Tarayıcıdan ses iznini al
+    await unlockAudioForPlayback();
+    log("Ses çalma izni alındı. Test 10 saniye sonra başlayacak.");
+
+    // Ekranı göster
+    $id('waitScreen').classList.remove('hidden');
+
+    // 10 saniye sonra testi başlat
+    setTimeout(() => {
+        $id('waitScreen').classList.add('hidden');
+        startSession();
+    }, 10000);
 });
 
 /* ================ Session & trials ================ */
@@ -361,25 +369,32 @@ function nextTrial(){
 }
 
 /* cevap butonları */
-document.querySelectorAll('.respBtn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const resp = btn.dataset.val;
-    const stim = playlist[currentTrial];
-    results.push({
-      session: sessionOrder[currentSessionIndex],
-      trial: currentTrial + 1,
-      stim: stim,
-      response: resp,
-      // hearing levels only in first hearing row, leave empty here
-      rightLevel: "",
-      leftLevel: "",
-      age: participant.age || "",
-      gender: participant.gender || "",
-      code: participant.code || ""
+document.querySelectorAll('.respBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const resp = btn.dataset.val;
+        const stim = playlist[currentTrial];
+
+        // Yanıtı kaydet
+        results.push({
+            session: sessionOrder[currentSessionIndex],
+            trial: currentTrial + 1,
+            stim: stim,
+            response: resp,
+            rightLevel: "",
+            leftLevel: "",
+            age: participant.age || "",
+            gender: participant.gender || "",
+            code: participant.code || ""
+        });
+        log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
+
+        // --- Yeni kod buraya eklendi ---
+        // 4 saniye (4000 milisaniye) bekle ve sonraki denemeyi başlat
+        setTimeout(() => {
+            nextTrial();
+        }, 4000);
+        // --- Yeni kodun sonu ---
     });
-    log("Yanıt kaydedildi: "+resp+" ("+stim+", "+sessionOrder[currentSessionIndex]+")");
-    nextTrial();
-  });
 });
 
 function endExperiment(){
@@ -388,17 +403,31 @@ function endExperiment(){
 }
 
 /* ================ CSV / filename / download ================ */
-function makeCsv(){
-  if(results.length === 0) return null;
-  const keys = Object.keys(results[0]);
-  const header = keys.join(',');
-  const rows = results.map(r => keys.map(k => {
-    const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/\\r|\\n/g,' ');
-    // escape commas if necessary (simple approach)
-    if(v.includes(',')) return '"' + v.replace(/"/g,'""') + '"';
-    return v;
-  }).join(','));
-  return [header, ...rows].join('\\n');
+function makeCsv() {
+    if (results.length === 0) return null;
+    const keys = Object.keys(results[0]);
+    const header = keys.join(',');
+
+    let currentSession = '';
+    const rows = [];
+
+    results.forEach(r => {
+        // Yeni bir oturum başladığında ayırıcı satır ekle
+        if (r.session !== currentSession) {
+            rows.push(`"--- Oturum: ${r.session} ---"`);
+            currentSession = r.session;
+        }
+
+        // Veri satırını oluştur
+        const row = keys.map(k => {
+            const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/\\r|\\n/g, ' ');
+            if (v.includes(',')) return '"' + v.replace(/"/g, '""') + '"';
+            return v;
+        }).join(',');
+        rows.push(row);
+    });
+
+    return [header, ...rows].join('\\n');
 }
 
 $id('downloadBtn').addEventListener('click', ()=>{
