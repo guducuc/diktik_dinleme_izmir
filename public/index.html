@@ -51,7 +51,6 @@
         <option value="Diğer">Diğer</option>
       </select>
     </div>
-    <div><input id="email" placeholder="E-posta (opsiyonel)"></div>
     <div style="margin-top:8px"><button id="makeCodeBtn">Katılımcı Kodunu Oluştur</button></div>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
@@ -199,8 +198,7 @@ function makeParticipantCode(){
   participant.gender = gender;
   participant.race = race;
   participant.motherTongue = motherTongue;
-  participant.email = ($id('email').value || '').trim();
-
+  
   const n2 = (name.padEnd(2).slice(0,2)).toUpperCase();
   const s2 = (surname.padEnd(2).slice(0,2)).toUpperCase();
   const four = (n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);
@@ -532,16 +530,17 @@ $id('emailBtn').addEventListener('click', async ()=>{
     if(!window.emailjs){
       await new Promise((res,rej)=>{
         const s = document.createElement('script');
-        // Bu satırı güncelleyerek doğru versiyonu kullanın.
         s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
         s.onload = res; s.onerror = rej;
         document.head.appendChild(s);
       });
     }
     emailjs.init(EMAILJS_USER);
-    const toAddress = (participant.email || "");
+    // NOT: Alıcı e-posta adresi, bu koddan geçirilmiyor.
+    // Lütfen EmailJS panelinizde, bu şablonu (template_7elc4wi)
+    // düzenleyerek "To" (Kime) alanını sabit bir e-posta adresiyle
+    // doldurun. Bu sayede tüm sonuçlar belirlediğiniz adrese gönderilecektir.
     const templateParams = {
-      to_email: toAddress,
       subject: participant.code || "",
       message: csv
     };
