@@ -138,17 +138,11 @@ const playlist = [
 /* ================ Helpers ================ */
 function $id(i){ return document.getElementById(i); }
 function log(msg){
-  const el = $id('log');
-  if (el) { // Eleman var mı kontrol et
-    el.innerHTML = (el.innerHTML==='Henüz kayıt yok.' ? '' : el.innerHTML) + "<div class='small'>"+msg+"</div>";
-  }
+  // Bu fonksiyon artık konsola yazıyor
+  console.log(msg);
 }
 function showWarning(msg){
-  const w = $id('warning');
-  if (w) { // Eleman var mı kontrol et
-    w.classList.remove('hidden');
-    w.innerText = msg;
-  }
+  alert(msg); // Pop-up uyarı için alert() kullanıyoruz
 }
 
 // Türkçe karakterleri İngilizce'ye çeviren yeni yardımcı fonksiyon
@@ -162,7 +156,7 @@ function trToEn(str) {
         .replace(/Ç/g, 'C').replace(/ç/g, 'c');
 }
 
-/* ================ Audio availability quick check ================ */
+/* ================ Audio availability quick check =================== */
 async function checkSampleFile(){
   try{
     const sample = 'silence.wav'; // playlist[0] yerine silence.wav kullan
@@ -170,19 +164,19 @@ async function checkSampleFile(){
     if(resp.ok){
       const ct = resp.headers.get('content-type')||'';
       if(!ct.includes('audio')) {
-        showWarning("Sunucu içerik tipi audio/ değil: "+ct+" — vercel.json ile Content-Type ayarı gerekebilir.");
+        log("Sunucu içerik tipi audio/ değil: "+ct+" — vercel.json ile Content-Type ayarı gerekebilir.");
       } else {
         log("Sunucu: ses dosyaları erişilebilir ("+sample+")");
       }
     } else {
-      showWarning("Sunucu /sounds/ klasöründen dosya okunamıyor (HTTP "+resp.status+"). Lütfen public/sounds dizinini ve vercel.json ayarlarını kontrol edin.");
+      log("Sunucu /sounds/ klasöründen dosya okunamıyor (HTTP "+resp.status+"). Lütfen public/sounds dizinini ve vercel.json ayarlarını kontrol edin.");
     }
   }catch(e){
-    showWarning("Ses dosyası kontrolü sırasında hata: "+e.message);
+    log("Ses dosyası kontrolü sırasında hata: "+e.message);
   }
 }
 
-/* ================ Participant code + fields ================ */
+/* ================ Participant code + fields ======================== */
 function makeParticipantCode(){
   const name = trToEn(($id('name').value || '').trim());
   const surname = trToEn(($id('surname').value || '').trim());
@@ -208,7 +202,7 @@ function makeParticipantCode(){
   return code;
 }
 
-/* ================ WebAudio 1500Hz (kanal ayrımı) ================ */
+/* ================ WebAudio 1500Hz (kanal ayrımı) =================== */
 let audioCtx = null;
 let rightOsc = null, leftOsc = null, rightGain=null, leftGain=null;
 
@@ -253,7 +247,7 @@ function stopTone(channel){
   }catch(e){ /*ignore*/ }
 }
 
-/* ================ UI bindings ================ */
+/* ================ UI bindings ===================================== */
 $id('makeCodeBtn').addEventListener('click', () => {
     // Zorunlu alanları kontrol et
     const name = $id('name').value.trim();
@@ -283,7 +277,7 @@ $id('playLeft').addEventListener('click', ()=>{
 $id('rightSlider').addEventListener('input', e=>{ rightLevel = e.target.value; if(rightGain) rightGain.gain.value = Number(rightLevel); });
 $id('leftSlider').addEventListener('input', e=>{ leftLevel = e.target.value; if(leftGain) leftGain.gain.value = Number(leftLevel); });
 
-/* ================ Hearing -> oturum akışı ================ */
+/* ================ Hearing -> oturum akışı ========================= */
 $id('toSessionIntro').addEventListener('click', ()=>{
   // işitme bilgisi ilk satırda olsun
   results.unshift({
@@ -349,7 +343,7 @@ $id('sessionStartBtn').addEventListener('click', async (ev) => {
     }, 10000);
 });
 
-/* ================ Session & trials ================ */
+/* ================ Session & trials ================================= */
 function startSession(){
   currentTrial = -1;
   $id('trialCard').classList.remove('hidden');
@@ -441,7 +435,7 @@ function endExperiment(){
   log("Deney tamamlandı, toplam yanıt sayısı: "+results.length);
 }
 
-/* ================ CSV / filename / download ================ */
+/* ================ CSV / filename / download ========================= */
 function makeCsv() {
     if (results.length === 0) return null;
     const keys = Object.keys(results[0]);
@@ -520,7 +514,7 @@ $id('emailBtn').addEventListener('click', async ()=>{
   }
 });
 
-/* ================ Onload checks ================ */
+/* ================ Onload checks =================================== */
 window.addEventListener('load', ()=>{
   // quick sample check (head request)
   checkSampleFile();
