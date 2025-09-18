@@ -218,8 +218,11 @@ function nextTrial(){
   const stim=playlist[currentTrial];
   document.getElementById('trialStatus').innerText="Deneme "+(currentTrial+1)+" / "+playlist.length+" ("+sessionOrder[currentSessionIndex]+")";
   const audioEl=document.getElementById('stimAudio');
-  audioEl.src="/sounds/"+stim;
-  audioEl.play();
+  audioEl.src = "/sounds/"+stim;
+audioEl.load();
+audioEl.play().catch(err => {
+  console.warn("Oynatma engellendi, kullanıcı etkileşimi bekleniyor:", err);
+});
   log("Çalınıyor: "+stim+" ("+sessionOrder[currentSessionIndex]+")");
 }
 
