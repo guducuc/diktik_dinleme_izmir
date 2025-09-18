@@ -14,7 +14,7 @@
     h1{font-size:20px;margin-bottom:8px}
     .hidden{display:none}
     .card{padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
-    input,select{padding:8px;margin:6px 0;width:100% ;box-sizing:border-box}
+    input[type=text], input[type=number], select{padding:8px;margin:6px 0;width:100% ;box-sizing:border-box}
     .respRow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .respBtn{
       font-size:2rem;
@@ -32,12 +32,15 @@
     }
     #warning{color:#8b0000;font-weight:600}
     .small{font-size:13px;color:#666}
+    .question-group {margin-bottom: 12px;}
+    .radio-label { display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
   <h1>Dikotik Dinleme Izmir</h1>
 
   <div id="participantCard" class="card">
+    <h3>Katılımcı Bilgileri</h3>
     <div><input id="name" placeholder="Ad"></div>
     <div><input id="surname" placeholder="Soyad"></div>
     <div><input id="age" type="number" placeholder="Yaş"></div>
@@ -51,8 +54,27 @@
         <option value="Diğer">Diğer</option>
       </select>
     </div>
-    <div style="margin-top:8px"><button id="makeCodeBtn">Katılımcı Kodunu Oluştur</button></div>
+    <div style="margin-top:8px"><button id="toStaiBtn">Devam</button></div>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
+  </div>
+
+  <div id="staiTxiCard" class="card hidden">
+    <h3>STAI-TXI Formu</h3>
+    <p class="small">Aşağıda kişilerin kendilerine ait duygularını anlatmada kullandıkları bir takım ifadeler verilmiştir. Her ifadeyi okuyun, sonra da nasıl hissettiğinizi ifadelerin sağ tarafındaki seçeneklerden uygun olanını işaretlemek suretiyle belirtin. Doğru ya da yanlış cevap yoktur. Herhangi bir ifadenin üzerinde fazla zaman sarf etmeksizin anında nasıl hissettiğinizi gösteren cevabı işaretleyin.</p>
+    
+    <div id="staiQuestions"></div>
+
+    <div style="margin-top:10px"><button id="toHandednessBtn">Devam</button></div>
+  </div>
+
+  <div id="handUseCard" class="card hidden">
+    <h3>El Kullanımı Testi</h3>
+    <p class="small">Sağ veya sol elinizi hangi işlemlerde kullandığınızı bilmek istiyoruz. Lütfen her işlemde kullandığınız ele göre ‘sol’ veya ‘sağ’ hanesini işaretleyin. Mesela yazı yazarken, genellikle sağ ama ara sıra sol elinizi kullanıyorsanız, her iki haneye bir X yapın. Daima sağ elinizi kullanıyorsanız, XX yazın. Diğer soruları aynı şekilde cevaplandırın.</p>
+    <p class="small" style="margin-bottom: 10px;">Lütfen her işlem için bir veya iki kutu işaretleyin.</p>
+
+    <div id="handUseQuestions"></div>
+
+    <div style="margin-top:10px"><button id="toHearingRightBtn">Devam</button></div>
   </div>
 
   <div id="hearingRightCard" class="card hidden">
@@ -137,7 +159,7 @@ let trialTimeout = null;
 let isResponseAllowed = false;
 
 /* ================ Playlist (gömülü) ================ */
-const playlist = [
+const mainPlaylist = [
   "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav",
   "LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav",
   "LKA-RKA.wav","LBA-RGA.wav","LKA-RPA.wav","LTA-RDA.wav","LGA-RKA.wav",
@@ -146,6 +168,11 @@ const playlist = [
   "LPA-RKA.wav","LTA-RBA.wav","LKA-RGA.wav","LTA-RTA.wav","LBA-RPA.wav",
   "LDA-RTA.wav","LGA-RBA.wav","LTA-RPA.wav","LDA-RDA.wav","LKA-RBA.wav",
   "LPA-RGA.wav"
+];
+const trainingPlaylist = [
+  "LBA-RBA.wav", "LDA-RDA.wav", "LGA-RGA.wav", "LKA-RKA.wav", "LPA-RPA.wav", "LTA-RTA.wav",
+  "LBA-RDA.wav", "LDA-RGA.wav", "LGA-RKA.wav", "LKA-RTA.wav", "LPA-RDA.wav", "LTA-RGA.wav",
+  "LGA-RTA.wav"
 ];
 
 /* ================ Helpers ================ */
@@ -194,6 +221,11 @@ function makeParticipantCode(){
   const race = ($id('race').value || '').trim();
   const motherTongue = ($id('motherTongue').value || '').trim();
   
+  if (!name || !surname || !age || !gender || !race || !motherTongue) {
+      showWarning("Lütfen tüm zorunlu alanları (Ad, Soyad, Yaş, Cinsiyet, Irk, Anadil) doldurun.");
+      return false;
+  }
+
   participant.age = age;
   participant.gender = gender;
   participant.race = race;
@@ -207,7 +239,7 @@ function makeParticipantCode(){
   participant.code = code;
   $id('codeInfo').innerText = "Katılımcı kodu: " + code + "  (yaş: "+participant.age+", cinsiyet: "+participant.gender+", ırk: "+participant.race+", anadil: "+participant.motherTongue+")";
   console.log("Katılımcı kodu oluşturuldu: "+code);
-  return code;
+  return true;
 }
 
 /* ================ WebAudio 1500Hz (kanal ayrımı) =================== */
@@ -255,21 +287,48 @@ function stopTone(channel){
 }
 
 /* ================ UI bindings ===================================== */
-$id('makeCodeBtn').addEventListener('click', () => {
-    const name = $id('name').value.trim();
-    const surname = $id('surname').value.trim();
-    const age = $id('age').value.trim();
-    const gender = $id('gender').value.trim();
-    const race = $id('race').value.trim();
-    const motherTongue = $id('motherTongue').value.trim();
-
-    if (!name || !surname || !age || !gender || !race || !motherTongue) {
-        showWarning("Lütfen tüm zorunlu alanları (Ad, Soyad, Yaş, Cinsiyet, Irk, Anadil) doldurun.");
-        return;
-    }
-    
-    makeParticipantCode();
+$id('toStaiBtn').addEventListener('click', () => {
+    if (!makeParticipantCode()) { return; }
     $id('participantCard').classList.add('hidden');
+    $id('staiTxiCard').classList.remove('hidden');
+    renderStaiTxiForm();
+});
+
+$id('toHandednessBtn').addEventListener('click', () => {
+    // STAI yanıtlarını kaydet
+    const staiAnswers = {};
+    document.querySelectorAll('#staiQuestions input[type="radio"]:checked').forEach(input => {
+        staiAnswers[input.name] = input.value;
+    });
+    participant.staiAnswers = staiAnswers;
+    console.log("STAI yanıtları kaydedildi", staiAnswers);
+
+    $id('staiTxiCard').classList.add('hidden');
+    $id('handUseCard').classList.remove('hidden');
+    renderHandUseForm();
+});
+
+$id('toHearingRightBtn').addEventListener('click', () => {
+    // El kullanımı yanıtlarını kaydet
+    const handUseAnswers = {};
+    document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
+        const questionId = group.dataset.questionId;
+        const leftChecked = group.querySelector('.left-option').checked;
+        const rightChecked = group.querySelector('.right-option').checked;
+        if (leftChecked && rightChecked) {
+            handUseAnswers[questionId] = 'both';
+        } else if (leftChecked) {
+            handUseAnswers[questionId] = 'left';
+        } else if (rightChecked) {
+            handUseAnswers[questionId] = 'right';
+        } else {
+            handUseAnswers[questionId] = 'no_response';
+        }
+    });
+    participant.handUseAnswers = handUseAnswers;
+    console.log("El kullanımı yanıtları kaydedildi", handUseAnswers);
+    
+    $id('handUseCard').classList.add('hidden');
     $id('hearingRightCard').classList.remove('hidden');
 });
 
@@ -307,14 +366,24 @@ $id('toSessionIntro').addEventListener('click', ()=>{
 
   $id('hearingLeftCard').classList.add('hidden');
 
-  const second = Math.random() < 0.5 ? 'FR' : 'FL';
-  const third = second === 'FR' ? 'FL' : 'FR';
-  sessionOrder = ['NF', second, third];
+  // Eğitim oturumunu ekle
+  sessionOrder = ['training', 'NF', ...shuffle(['FR', 'FL'])];
   currentSessionIndex = 0;
   showSessionIntro();
 });
 
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
 const instr = {
+  training: "Birazdan dikotik dinleme eğitim oturumu başlayacak. Bu oturumda iki kulağınıza heceler çalınacak. Yanıt vermeniz gerekmiyor, sadece dinleyin.",
   NF: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen en iyi duyduğunuz heceyi ilgili düğmeye basarak işaretleyiniz.",
   FR: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen <b>sağ kulağınıza</b> odaklanın ve sağ kulağınızdan duyduğunuz heceyi işaretleyiniz.",
   FL: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen <b>sol kulağınıza</b> odaklanın ve sol kulağınızdan duyduğunuz heceyi işaretleyiniz."
@@ -366,7 +435,7 @@ function startSession(){
 }
 
 async function playStim(stim, session){
-  isResponseAllowed = false;
+  isResponseAllowed = (session !== 'training');
   const audioEl = $id('stimAudio');
   
   try {
@@ -377,13 +446,11 @@ async function playStim(stim, session){
     audioEl.src = "/sounds/" + stim;
     await audioEl.play();
     console.log("Çalınıyor: " + stim + " (" + session + ")");
-
-    setTimeout(() => {
-        isResponseAllowed = true;
-    }, 1000);
+    
+    const delay = (session === 'training') ? 4000 : 5000;
 
     trialTimeout = setTimeout(() => {
-        console.log("5 saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
+        console.log(delay/1000 + " saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
         results.push({
             session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
@@ -398,7 +465,7 @@ async function playStim(stim, session){
             code: participant.code || ""
         });
         nextTrial();
-    }, 5000);
+    }, delay);
 
   } catch (err) {
     console.warn("play err:", err);
@@ -408,6 +475,7 @@ async function playStim(stim, session){
 
 function nextTrial(){
   currentTrial++;
+  const playlist = (sessionOrder[currentSessionIndex] === 'training') ? trainingPlaylist : mainPlaylist;
   if(currentTrial >= playlist.length){
     $id('trialCard').classList.add('hidden');
     currentSessionIndex++;
@@ -437,7 +505,7 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         }
 
         const resp = btn.dataset.val;
-        const stim = playlist[currentTrial];
+        const stim = mainPlaylist[currentTrial];
 
         // Butona basıldığında aktif sınıfını ekle
         btn.classList.add('respBtn-active');
@@ -476,24 +544,28 @@ function endExperiment(){
 /* ================ CSV / filename / download ========================= */
 function makeCsv() {
     if (results.length === 0) return null;
-    const keys = Object.keys(results[0]);
+    let combinedResults = [];
+
+    // Form yanıtlarını en başa ekle
+    combinedResults.push({
+        session: "info",
+        trial: 0,
+        ...participant,
+        staiAnswers: JSON.stringify(participant.staiAnswers),
+        handUseAnswers: JSON.stringify(participant.handUseAnswers)
+    });
+
+    combinedResults.push(...results);
+
+    const keys = Object.keys(combinedResults[0]);
     const header = keys.join(',');
 
-    let currentSession = '';
-    const rows = [];
-
-    results.forEach(r => {
-        if (r.session !== currentSession) {
-            rows.push(`"--- Oturum: ${r.session} ---"`);
-            currentSession = r.session;
-        }
-
-        const row = keys.map(k => {
+    const rows = combinedResults.map(r => {
+        return keys.map(k => {
             const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/\\r|\\n/g, ' ');
             if (v.includes(',')) return '"' + v.replace(/"/g, '""') + '"';
             return v;
         }).join(',');
-        rows.push(row);
     });
 
     return [header, ...rows].join('\\n');
@@ -553,6 +625,86 @@ $id('emailBtn').addEventListener('click', async ()=>{
     console.log("E-posta hatası: " + JSON.stringify(err));
   }
 });
+
+/* ================ Anket Formları Oluşturma ========================= */
+const staiQuestions = [
+    "Şu anda sakinim",
+    "Kendimi emniyette hissediyorum",
+    "Şu anda sinirlerim gergin",
+    "Pişmanlık duygusu içindeyim",
+    "Şu anda huzur içindeyim",
+    "Şu anda hiç keyfim yok",
+    "Başıma geleceklerden endişe ediyorum",
+    "Kendimi dinlenmiş hissediyorum",
+    "Şu anda kaygılıyım",
+    "Kendimi rahat hissediyorum",
+    "Kendime güvenim var",
+    "Şu anda asabım bozuk",
+    "Çok sinirliyim",
+    "Sinirlerimin çok gergin olduğunu hissediyorum",
+    "Kendimi rahatlamış hissediyorum",
+    "Şu anda halimden memnunum",
+    "Şu anda endişeliyim",
+    "Heyecandan kendimi şaşkına dönmüş hissediyorum",
+    "Şu anda sevinçliyim",
+    "Şu anda keyfim yerinde"
+];
+function renderStaiTxiForm() {
+    const container = $id('staiQuestions');
+    container.innerHTML = '';
+    staiQuestions.forEach((q, i) => {
+        const questionHtml = `
+            <div class="question-group">
+                <p>${i + 1}. ${q}</p>
+                <label><input type="radio" name="staiQ${i + 1}" value="1"> Hiç</label>
+                <label><input type="radio" name="staiQ${i + 1}" value="2"> Biraz</label>
+                <label><input type="radio" name="staiQ${i + 1}" value="3"> Çok</label>
+                <label><input type="radio" name="staiQ${i + 1}" value="4"> Tamamıyla</label>
+            </div>
+        `;
+        container.innerHTML += questionHtml;
+    });
+}
+
+const handUseQuestions = [
+    "Yazmak",
+    "Çizmek",
+    "Taş Atmak",
+    "Makas kullanmak",
+    "Diş fırçası kullanmak",
+    "Bıçak kullanmak",
+    "Kaşık kullanmak",
+    "Süpürge kullanmak (üst el)",
+    "Kibrit çakmak",
+    "Kutunun kapağını açmak"
+];
+function renderHandUseForm() {
+    const container = $id('handUseQuestions');
+    container.innerHTML = '';
+    const headerHtml = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <div style="flex-grow:1;"></div>
+            <div style="width: 50px; text-align: center;">Sol</div>
+            <div style="width: 50px; text-align: center;">Sağ</div>
+        </div>
+    `;
+    container.innerHTML += headerHtml;
+
+    handUseQuestions.forEach((q, i) => {
+        const questionId = `handQ${i + 1}`;
+        const questionHtml = `
+            <div class="question-group" data-question-id="${questionId}">
+                <label style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="flex-grow:1;">${i + 1}. ${q}</span>
+                    <input type="checkbox" class="left-option" name="${questionId}-sol" value="sol" style="width: 50px;">
+                    <input type="checkbox" class="right-option" name="${questionId}-sag" value="sag" style="width: 50px;">
+                </label>
+            </div>
+        `;
+        container.innerHTML += questionHtml;
+    });
+}
+
 
 /* ================ Onload checks =================================== */
 window.addEventListener('load', ()=>{
