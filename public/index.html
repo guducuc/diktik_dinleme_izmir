@@ -25,6 +25,10 @@
       border:1px solid #444;
       background:#f2f2f2;
       cursor:pointer;
+      transition:background-color 0.2s; /* Renk değişimi için animasyon */
+    }
+    .respBtn:active, .respBtn-active {
+        background-color: #bdbdbd; /* Buton basıldığında renk değişimi */
     }
     #warning{color:#8b0000;font-weight:600}
     .small{font-size:13px;color:#666}
@@ -52,9 +56,9 @@
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
 
-  <div id="hearingCard" class="card hidden">
-    <h3>İşitme Kontrolü</h3>
-    <p class="small">Aşağıdaki slider ile 1500 Hz tonunu her iki kulağınız için ayarlayın. "Oynat" butonuna basarak sesi kontrol edin.</p>
+  <div id="hearingRightCard" class="card hidden">
+    <h3>İşitme Kontrolü (Sağ Kulak)</h3>
+    <p class="small">Lütfen 1500 Hz tonunu sağ kulağınız için rahat duyabileceğiniz bir seviyeye ayarlayın. "Oynat" butonuna basarak sesi kontrol edin.</p>
 
     <div style="margin-top:8px">
       <div><strong>Sağ kulak (1500 Hz)</strong></div>
@@ -63,6 +67,15 @@
     </div>
 
     <div style="margin-top:12px">
+      <button id="toHearingLeft">Devam</button>
+    </div>
+  </div>
+
+  <div id="hearingLeftCard" class="card hidden">
+    <h3>İşitme Kontrolü (Sol Kulak)</h3>
+    <p class="small">Şimdi sol kulağınız için aynı işlemi yapın.</p>
+    
+    <div style="margin-top:8px">
       <div><strong>Sol kulak (1500 Hz)</strong></div>
       <input type="range" id="leftSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playLeft" style="margin-top:6px">Oynat / Durdur</button>
@@ -217,7 +230,6 @@ function startTone(channel){
     rightOsc.type = 'sine';
     rightOsc.frequency.value = 1500;
     rightGain.gain.value = Number(rightLevel);
-    // route to right channel:
     const merger = audioCtx.createChannelMerger(2);
     rightOsc.connect(rightGain);
     rightGain.connect(merger,0,1);
@@ -260,20 +272,30 @@ $id('makeCodeBtn').addEventListener('click', () => {
     
     makeParticipantCode();
     $id('participantCard').classList.add('hidden');
-    $id('hearingCard').classList.remove('hidden');
+    $id('hearingRightCard').classList.remove('hidden');
 });
+
+// Sağ kulak kontrolü
 $id('playRight').addEventListener('click', ()=>{
   if(rightOsc) { stopTone('right'); $id('playRight').innerText='Oynat / Durdur'; }
   else { startTone('right'); $id('playRight').innerText='Durdur'; }
 });
+$id('rightSlider').addEventListener('input', e=>{ rightLevel = e.target.value; if(rightGain) rightGain.gain.value = Number(rightLevel); });
+
+// Sağ kulaktan sol kulağa geçiş
+$id('toHearingLeft').addEventListener('click', ()=>{
+    $id('hearingRightCard').classList.add('hidden');
+    $id('hearingLeftCard').classList.remove('hidden');
+});
+
+// Sol kulak kontrolü
 $id('playLeft').addEventListener('click', ()=>{
   if(leftOsc) { stopTone('left'); $id('playLeft').innerText='Oynat / Durdur'; }
   else { startTone('left'); $id('playLeft').innerText='Durdur'; }
 });
-$id('rightSlider').addEventListener('input', e=>{ rightLevel = e.target.value; if(rightGain) rightGain.gain.value = Number(rightLevel); });
 $id('leftSlider').addEventListener('input', e=>{ leftLevel = e.target.value; if(leftGain) leftGain.gain.value = Number(leftLevel); });
 
-/* ================ Hearing -> oturum akışı ========================= */
+// İşitme testinden oturum sayfasına geçiş
 $id('toSessionIntro').addEventListener('click', ()=>{
   results.unshift({
     session:"hearing", trial:0, stim:"1500Hz",
@@ -283,7 +305,7 @@ $id('toSessionIntro').addEventListener('click', ()=>{
   });
   console.log("İşitme bilgisi kaydedildi: sağ="+rightLevel+", sol="+leftLevel);
 
-  $id('hearingCard').classList.add('hidden');
+  $id('hearingLeftCard').classList.add('hidden');
 
   const second = Math.random() < 0.5 ? 'FR' : 'FL';
   const third = second === 'FR' ? 'FL' : 'FR';
@@ -348,12 +370,10 @@ async function playStim(stim, session){
   const audioEl = $id('stimAudio');
   
   try {
-    // Önce 1 saniyelik sessizlik dosyasını oynat
     audioEl.src = "/sounds/silence.wav";
     await audioEl.play();
     console.log("Sessizlik dosyası çalındı.");
 
-    // Ardından asıl uyaranı oynat
     audioEl.src = "/sounds/" + stim;
     await audioEl.play();
     console.log("Çalınıyor: " + stim + " (" + session + ")");
@@ -419,6 +439,9 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         const resp = btn.dataset.val;
         const stim = playlist[currentTrial];
 
+        // Butona basıldığında aktif sınıfını ekle
+        btn.classList.add('respBtn-active');
+
         results.push({
             session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
@@ -435,6 +458,8 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         console.log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
 
         setTimeout(() => {
+            // Bir sonraki denemeye geçmeden önce aktif sınıfını kaldır
+            btn.classList.remove('respBtn-active');
             nextTrial();
         }, 4000);
     });
