@@ -26,7 +26,6 @@
       background:#f2f2f2;
       cursor:pointer;
     }
-    #log{font-size:13px;color:#333;max-height:240px;overflow:auto;padding:8px;background:#fafafa;border-radius:6px}
     #warning{color:#8b0000;font-weight:600}
     .small{font-size:13px;color:#666}
   </style>
@@ -107,11 +106,6 @@
     <div id="doneLog" class="small" style="margin-top:8px"></div>
   </div>
 
-  <div class="card">
-    <div id="warning" class="hidden"></div>
-    <div id="log">Henüz kayıt yok.</div>
-  </div>
-
 <script>
 /* ================== CONFIG (EmailJS: meta or global fallback) ================== */
 const CONFIG = {
@@ -145,13 +139,16 @@ const playlist = [
 function $id(i){ return document.getElementById(i); }
 function log(msg){
   const el = $id('log');
-  el.innerHTML = (el.innerHTML==='Henüz kayıt yok.' ? '' : el.innerHTML) + "<div class='small'>"+msg+"</div>";
+  if (el) { // Eleman var mı kontrol et
+    el.innerHTML = (el.innerHTML==='Henüz kayıt yok.' ? '' : el.innerHTML) + "<div class='small'>"+msg+"</div>";
+  }
 }
 function showWarning(msg){
   const w = $id('warning');
-  w.classList.remove('hidden');
-  w.innerText = msg;
-  log("UYARI: "+msg);
+  if (w) { // Eleman var mı kontrol et
+    w.classList.remove('hidden');
+    w.innerText = msg;
+  }
 }
 
 // Türkçe karakterleri İngilizce'ye çeviren yeni yardımcı fonksiyon
@@ -339,18 +336,13 @@ async function unlockAudioForPlayback(){
 $id('sessionStartBtn').addEventListener('click', async (ev) => {
     $id('sessionIntro').classList.add('hidden');
     
-    // Seslerin hazırlanıyor olduğuna dair bir mesaj gösterebiliriz
-    // Şu an için sadece konsola log gönderelim.
     log("Ses çalma izni alınıyor...");
 
-    // Tarayıcıdan ses iznini al
     await unlockAudioForPlayback();
     log("Ses çalma izni alındı. Test 10 saniye sonra başlayacak.");
 
-    // Ekranı göster
     $id('waitScreen').classList.remove('hidden');
 
-    // 10 saniye sonra testi başlat
     setTimeout(() => {
         $id('waitScreen').classList.add('hidden');
         startSession();
@@ -371,14 +363,13 @@ function playStim(stim, session){
   audioEl.play().then(()=>{
     log("Çalınıyor: " + stim + " (" + session + ")");
     
-    // Zamanlayıcıyı başlat: 5 saniye sonra otomatik geç
     trialTimeout = setTimeout(() => {
         log("5 saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
         results.push({
             session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
             stim: stim,
-            response: "no_response", // Yanıt yok olarak kaydet
+            response: "no_response",
             rightLevel: "",
             leftLevel: "",
             age: participant.age || "",
@@ -388,7 +379,7 @@ function playStim(stim, session){
             code: participant.code || ""
         });
         nextTrial();
-    }, 5000); // 5000 milisaniye = 5 saniye
+    }, 5000);
     
   }).catch(err=>{
     console.warn("play err:", err);
@@ -416,7 +407,6 @@ function nextTrial(){
 /* cevap butonları */
 document.querySelectorAll('.respBtn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Eğer bir zamanlayıcı varsa iptal et
         if (trialTimeout) {
             clearTimeout(trialTimeout);
             trialTimeout = null;
@@ -425,7 +415,6 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         const resp = btn.dataset.val;
         const stim = playlist[currentTrial];
 
-        // Yanıtı kaydet
         results.push({
             session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
@@ -441,7 +430,6 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         });
         log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
 
-        // 4 saniye (4000 milisaniye) bekle ve sonraki denemeyi başlat
         setTimeout(() => {
             nextTrial();
         }, 4000);
@@ -463,13 +451,11 @@ function makeCsv() {
     const rows = [];
 
     results.forEach(r => {
-        // Yeni bir oturum başladığında ayırıcı satır ekle
         if (r.session !== currentSession) {
             rows.push(`"--- Oturum: ${r.session} ---"`);
             currentSession = r.session;
         }
 
-        // Veri satırını oluştur
         const row = keys.map(k => {
             const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/\\r|\\n/g, ' ');
             if (v.includes(',')) return '"' + v.replace(/"/g, '""') + '"';
