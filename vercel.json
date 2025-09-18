@@ -1,13 +1,6 @@
 {
+  "public": true,
   "routes": [
     { "src": "/sounds/(.*)", "dest": "/sounds/$1" }
-  ],
-  "headers": [
-    {
-      "source": "/sounds/(.*)",
-      "headers": [
-        { "key": "Content-Type", "value": "audio/wav" }
-      ]
-    }
   ]
 }
