@@ -549,8 +549,8 @@ $id('emailBtn').addEventListener('click', async ()=>{
     console.log("E-posta gönderildi.");
   }catch(err){
     console.error("Email send err", err);
-    alert("E-posta gönderilemedi: " + (err.message || err));
-    console.log("E-posta hatası: " + (err.message || err));
+    alert("E-posta gönderilemedi: " + JSON.stringify(err));
+    console.log("E-posta hatası: " + JSON.stringify(err));
   }
 });
 
