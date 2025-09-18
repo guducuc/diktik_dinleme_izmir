@@ -284,6 +284,7 @@ $id('rightSlider').addEventListener('input', e=>{ rightLevel = e.target.value; i
 
 // Sağ kulaktan sol kulağa geçiş
 $id('toHearingLeft').addEventListener('click', ()=>{
+    stopTone('right'); // Sağ kulak tonunu durdur
     $id('hearingRightCard').classList.add('hidden');
     $id('hearingLeftCard').classList.remove('hidden');
 });
@@ -297,6 +298,7 @@ $id('leftSlider').addEventListener('input', e=>{ leftLevel = e.target.value; if(
 
 // İşitme testinden oturum sayfasına geçiş
 $id('toSessionIntro').addEventListener('click', ()=>{
+  stopTone('left'); // Sol kulak tonunu durdur
   results.unshift({
     session:"hearing", trial:0, stim:"1500Hz",
     response:`right=${rightLevel},left=${leftLevel}`,
@@ -380,7 +382,7 @@ async function playStim(stim, session){
 
     setTimeout(() => {
         isResponseAllowed = true;
-    }, 1000);
+    }, 300);
 
     trialTimeout = setTimeout(() => {
         console.log("5 saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
