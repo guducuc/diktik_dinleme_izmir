@@ -138,9 +138,6 @@ const playlist = [
 
 /* ================ Helpers ================ */
 function $id(i){ return document.getElementById(i); }
-function log(msg){
-  console.log(msg);
-}
 function showWarning(msg){
   alert(msg);
 }
@@ -164,15 +161,15 @@ async function checkSampleFile(){
     if(resp.ok){
       const ct = resp.headers.get('content-type')||'';
       if(!ct.includes('audio')) {
-        log("Sunucu içerik tipi audio/ değil: "+ct+" — vercel.json ile Content-Type ayarı gerekebilir.");
+        console.log("Sunucu içerik tipi audio/ değil: "+ct+" — vercel.json ile Content-Type ayarı gerekebilir.");
       } else {
-        log("Sunucu: ses dosyaları erişilebilir ("+sample+")");
+        console.log("Sunucu: ses dosyaları erişilebilir ("+sample+")");
       }
     } else {
-      log("Sunucu /sounds/ klasöründen dosya okunamıyor (HTTP "+resp.status+"). Lütfen public/sounds dizinini ve vercel.json ayarlarını kontrol edin.");
+      console.log("Sunucu /sounds/ klasöründen dosya okunamıyor (HTTP "+resp.status+"). Lütfen public/sounds dizinini ve vercel.json ayarlarını kontrol edin.");
     }
   }catch(e){
-    log("Ses dosyası kontrolü sırasında hata: "+e.message);
+    console.log("Ses dosyası kontrolü sırasında hata: "+e.message);
   }
 }
 
@@ -198,7 +195,7 @@ function makeParticipantCode(){
   const code = four + '_' + String(rand5);
   participant.code = code;
   $id('codeInfo').innerText = "Katılımcı kodu: " + code + "  (yaş: "+participant.age+", cinsiyet: "+participant.gender+", ırk: "+participant.race+", anadil: "+participant.motherTongue+")";
-  log("Katılımcı kodu oluşturuldu: "+code);
+  console.log("Katılımcı kodu oluşturuldu: "+code);
   return code;
 }
 
@@ -249,7 +246,6 @@ function stopTone(channel){
 
 /* ================ UI bindings ===================================== */
 $id('makeCodeBtn').addEventListener('click', () => {
-    // Zorunlu alanları kontrol et
     const name = $id('name').value.trim();
     const surname = $id('surname').value.trim();
     const age = $id('age').value.trim();
@@ -279,14 +275,13 @@ $id('leftSlider').addEventListener('input', e=>{ leftLevel = e.target.value; if(
 
 /* ================ Hearing -> oturum akışı ========================= */
 $id('toSessionIntro').addEventListener('click', ()=>{
-  // işitme bilgisi ilk satırda olsun
   results.unshift({
     session:"hearing", trial:0, stim:"1500Hz",
     response:`right=${rightLevel},left=${leftLevel}`,
     rightLevel:rightLevel, leftLevel:leftLevel,
     age:participant.age, gender:participant.gender, code:participant.code || ''
   });
-  log("İşitme bilgisi kaydedildi: sağ="+rightLevel+", sol="+leftLevel);
+  console.log("İşitme bilgisi kaydedildi: sağ="+rightLevel+", sol="+leftLevel);
 
   $id('hearingCard').classList.add('hidden');
 
@@ -314,26 +309,24 @@ function showSessionIntro(){
 async function unlockAudioForPlayback(){
   try{
     const audioEl = $id('stimAudio');
-    // set a tiny silent source (muted) to unlock autoplay policies
     audioEl.muted = true;
-    audioEl.src = "/sounds/" + (playlist[0] || "");
+    audioEl.src = "/sounds/silence.wav";
     audioEl.load();
     await audioEl.play();
     audioEl.pause();
     audioEl.muted = false;
-    log("Audio unlocked (tarayıcı izin verdi).");
+    console.log("Audio unlocked (tarayıcı izin verdi).");
   }catch(e){
-    log("Audio unlock failed or not necessary: " + (e && e.message ? e.message : e));
+    console.log("Audio unlock failed or not necessary: " + (e && e.message ? e.message : e));
   }
 }
 
 $id('sessionStartBtn').addEventListener('click', async (ev) => {
     $id('sessionIntro').classList.add('hidden');
     
-    log("Ses çalma izni alınıyor...");
-
+    console.log("Ses çalma izni alınıyor...");
     await unlockAudioForPlayback();
-    log("Ses çalma izni alındı. Test 10 saniye sonra başlayacak.");
+    console.log("Ses çalma izni alındı. Test 10 saniye sonra başlayacak.");
 
     $id('waitScreen').classList.remove('hidden');
 
@@ -350,20 +343,27 @@ function startSession(){
   nextTrial();
 }
 
-function playStim(stim, session){
+async function playStim(stim, session){
   isResponseAllowed = false;
   const audioEl = $id('stimAudio');
-  audioEl.src = "/sounds/" + stim;
-  audioEl.load();
-  audioEl.play().then(()=>{
-    log("Çalınıyor: " + stim + " (" + session + ")");
-    
+  
+  try {
+    // Önce 1 saniyelik sessizlik dosyasını oynat
+    audioEl.src = "/sounds/silence.wav";
+    await audioEl.play();
+    console.log("Sessizlik dosyası çalındı.");
+
+    // Ardından asıl uyaranı oynat
+    audioEl.src = "/sounds/" + stim;
+    await audioEl.play();
+    console.log("Çalınıyor: " + stim + " (" + session + ")");
+
     setTimeout(() => {
         isResponseAllowed = true;
     }, 1000);
 
     trialTimeout = setTimeout(() => {
-        log("5 saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
+        console.log("5 saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
         results.push({
             session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
@@ -379,11 +379,11 @@ function playStim(stim, session){
         });
         nextTrial();
     }, 5000);
-    
-  }).catch(err=>{
+
+  } catch (err) {
     console.warn("play err:", err);
-    log("Ses çalınamadı (tarayıcı izin/format/kaynak sorunları). Konsolu kontrol edin.");
-  });
+    showWarning("Ses çalınamadı (tarayıcı izin/format/kaynak sorunları). Konsolu kontrol edin.");
+  }
 }
 
 function nextTrial(){
@@ -432,7 +432,7 @@ document.querySelectorAll('.respBtn').forEach(btn => {
             motherTongue: participant.motherTongue || "",
             code: participant.code || ""
         });
-        log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
+        console.log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
 
         setTimeout(() => {
             nextTrial();
@@ -442,7 +442,7 @@ document.querySelectorAll('.respBtn').forEach(btn => {
 
 function endExperiment(){
   $id('endCard').classList.remove('hidden');
-  log("Deney tamamlandı, toplam yanıt sayısı: "+results.length);
+  console.log("Deney tamamlandı, toplam yanıt sayısı: "+results.length);
 }
 
 /* ================ CSV / filename / download ========================= */
@@ -483,7 +483,7 @@ $id('downloadBtn').addEventListener('click', ()=>{
   const a = document.createElement('a');
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
-  log("CSV indirildi: " + filename);
+  console.log("CSV indirildi: " + filename);
 });
 
 /* ================ EmailJS sending (uses CONFIG above) ================ */
@@ -516,11 +516,11 @@ $id('emailBtn').addEventListener('click', async ()=>{
     };
     const resp = await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams);
     $id('doneLog').innerText = "EmailJS cevabı: " + JSON.stringify(resp);
-    log("E-posta gönderildi.");
+    console.log("E-posta gönderildi.");
   }catch(err){
     console.error("Email send err", err);
     alert("E-posta gönderilemedi: " + (err.message || err));
-    log("E-posta hatası: " + (err.message || err));
+    console.log("E-posta hatası: " + (err.message || err));
   }
 });
 
