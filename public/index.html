@@ -41,14 +41,14 @@
 
   <div id="participantCard" class="card">
     <h3>Katılımcı Bilgileri</h3>
-    <div><input id="name" placeholder="Ad"></div>
-    <div><input id="surname" placeholder="Soyad"></div>
-    <div><input id="age" type="number" placeholder="Yaş"></div>
-    <div><input id="race" placeholder="Irk"></div>
-    <div><input id="motherTongue" placeholder="Anadil"></div>
+    <div><input id="name" placeholder="Adınız"></div>
+    <div><input id="surname" placeholder="Soyadınız"></div>
+    <div><input id="age" type="number" placeholder="Yaşınız"></div>
+    <div><input id="race" placeholder="Irkınız/Doğum yeriniz (ülke)"></div>
+    <div><input id="motherTongue" placeholder="Anadiliniz"></div>
     <div>
       <select id="gender">
-        <option value="">Cinsiyet seçin</option>
+        <option value="">Cinsiyetinizi seçiniz </option>
         <option value="Kadın">Kadın</option>
         <option value="Erkek">Erkek</option>
         <option value="Diğer">Diğer</option>
@@ -60,7 +60,7 @@
 
   <div id="staiTxiCard" class="card hidden">
     <h3>STAI-TXI Formu</h3>
-    <p class="small">Aşağıda kişilerin kendilerine ait duygularını anlatmada kullandıkları bir takım ifadeler verilmiştir. Her ifadeyi okuyun, sonra da nasıl hissettiğinizi ifadelerin sağ tarafındaki seçeneklerden uygun olanını işaretlemek suretiyle belirtin. Doğru ya da yanlış cevap yoktur. Herhangi bir ifadenin üzerinde fazla zaman sarf etmeksizin anında nasıl hissettiğinizi gösteren cevabı işaretleyin.</p>
+    <p class="small">Aşağıda kişilerin kendilerine ait duygularını anlatmada kullandıkları bir takım ifadeler verilmiştir. Her ifadeyi okuyun, sonra da nasıl hissettiğinizi ifadelerin sağ tarafındaki seçeneklerden uygun olanını işaretlemek suretiyle belirtin. Doğru ya da yanlış cevap yoktur. Herhangi bir ifadenin üzerinde fazla zaman sarf etmeksizin şu anda nasıl hissettiğinizi gösteren cevabı işaretleyin.</p>
     
     <div id="staiQuestions"></div>
 
@@ -72,8 +72,8 @@
 
   <div id="handUseCard" class="card hidden">
     <h3>El Kullanımı Testi</h3>
-    <p class="small">Sağ veya sol elinizi hangi işlemlerde kullandığınızı bilmek istiyoruz. Lütfen her işlemde kullandığınız ele göre ‘sol’ veya ‘sağ’ hanesini işaretleyin. Mesela yazı yazarken, genellikle sağ ama ara sıra sol elinizi kullanıyorsanız, her iki haneye bir X yapın. Daima sağ elinizi kullanıyorsanız, XX yazın. Diğer soruları aynı şekilde cevaplandırın.</p>
-    <p class="small" style="margin-bottom: 10px;">Lütfen her işlem için bir veya iki kutu işaretleyin.</p>
+    <p class="small">Sağ veya sol elinizi hangi işlemlerde kullandığınızı bilmek istiyoruz. Lütfen her işlemde kullandığınız ele göre ‘sol’ veya ‘sağ’ hanesindeki kutucukları işaretleyin. Mesela yazı yazarken, genellikle sağ ama ara sıra sol elinizi kullanıyorsanız, her iki ele ait kutucuklardan birer tanesini işaretleyin. Daima sağ elinizi kullanıyorsanız, sağ el atındaki kutucukların her ikisini de işaretleyin. Diğer soruları aynı şekilde cevaplandırın.</p>
+    <p class="small" style="margin-bottom: 10px;">Lütfen her işlem en az iki kutu işaretleyin.</p>
 
     <div id="handUseQuestions"></div>
 
@@ -85,7 +85,7 @@
 
   <div id="hearingRightCard" class="card hidden">
     <h3>İşitme Kontrolü</h3>
-    <p class="small">Lütfen önce sağ, sonra sol kulağınız için tonu rahat duyabileceğiniz bir seviyeye ayarlayın. "Oynat" butonuna basarak sesi kontrol edin.</p>
+    <p class="small">Lütfen önce sağ, sonra sol kulağınız için sesi rahat duyabileceğiniz bir seviyeye ayarlayın. "Oynat" butonuna basarak sesi kontrol edin.</p>
 
     <div id="rightEarControls" style="margin-top:8px; padding-bottom:12px; border-bottom: 1px solid #eee;">
       <div><strong>Sağ kulak (1500 Hz)</strong></div>
@@ -114,7 +114,7 @@
 
   <div id="waitScreen" class="card hidden">
     <h3>Test şimdi başlıyor...</h3>
-    <p class="small">Lütfen kulaklıklarınızı yerinde tutun. Test 10 saniye sonra başlayacak.</p>
+    <p class="small">Lütfen kulaklıklarınızı çıkarmayın. Test 10 saniye içinde başlayacak.</p>
   </div>
 
   <div id="trialCard" class="card hidden">
@@ -468,7 +468,7 @@ function shuffle(array) {
 }
 
 const instr = {
-  training: "Birazdan dikotik dinleme eğitim oturumu başlayacak. Bu oturumda iki kulağınıza heceler çalınacak. Yanıt vermeniz gerekmiyor, sadece dinleyin.",
+  training: "Birazdan dikotik dinleme eğitim oturumu başlayacak. Bu oturumda iki kulağınıza farklı heceler çalınacak. Yanıt vermeniz gerekmiyor, sadece dinleyin.",
   NF: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen en iyi duyduğunuz heceyi ilgili düğmeye basarak işaretleyiniz.",
   FR: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen <b>sağ kulağınıza</b> odaklanın ve sağ kulağınızdan duyduğunuz heceyi işaretleyiniz.",
   FL: "Şimdi her iki kulağınıza farklı heceler gelecek. Lütfen <b>sol kulağınıza</b> odaklanın ve sol kulağınızdan duyduğunuz heceyi işaretleyiniz."
