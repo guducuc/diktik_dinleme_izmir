@@ -293,8 +293,19 @@ $id('toStaiBtn').addEventListener('click', () => {
     $id('staiTxiCard').classList.remove('hidden');
     renderStaiTxiForm();
 });
-
 $id('toHandednessBtn').addEventListener('click', () => {
+    let allAnswered = true;
+    for (let i = 1; i <= staiQuestions.length; i++) {
+        if (!document.querySelector(`input[name="staiQ${i}"]:checked`)) {
+            allAnswered = false;
+            break;
+        }
+    }
+    if (!allAnswered) {
+        alert("Lütfen tüm STAI sorularını yanıtlayın.");
+        return;
+    }
+
     // STAI yanıtlarını kaydet
     const staiAnswers = {};
     document.querySelectorAll('#staiQuestions input[type="radio"]:checked').forEach(input => {
@@ -307,8 +318,52 @@ $id('toHandednessBtn').addEventListener('click', () => {
     $id('handUseCard').classList.remove('hidden');
     renderHandUseForm();
 });
+    // STAI yanıtlarını kaydet
+    const staiAnswers = {};
+    document.querySelectorAll('#staiQuestions input[type="radio"]:checked').forEach(input => {
+        staiAnswers[input.name] = input.value;
+    });
+    participant.staiAnswers = staiAnswers;
+    console.log("STAI yanıtları kaydedildi", staiAnswers);
 
+    $id('staiTxiCard').classList.add('hidden');
+    $id('handUseCard').classList.remove('hidden');
+    renderHandUseForm();
+});
 $id('toHearingRightBtn').addEventListener('click', () => {
+    let allAnswered = true;
+    document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
+        const leftChecked = group.querySelector('.left-option').checked;
+        const rightChecked = group.querySelector('.right-option').checked;
+        if (!leftChecked && !rightChecked) {
+            allAnswered = false;
+        }
+    });
+    if (!allAnswered) {
+        alert("Lütfen tüm el kullanımı sorularını yanıtlayın.");
+        return;
+    }
+
+    // El kullanımı yanıtlarını kaydet
+    const handUseAnswers = {};
+    document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
+        const questionId = group.dataset.questionId;
+        const leftChecked = group.querySelector('.left-option').checked;
+        const rightChecked = group.querySelector('.right-option').checked;
+        if (leftChecked && rightChecked) {
+            handUseAnswers[questionId] = 'both';
+        } else if (leftChecked) {
+            handUseAnswers[questionId] = 'left';
+        } else if (rightChecked) {
+            handUseAnswers[questionId] = 'right';
+        }
+    });
+    participant.handUseAnswers = handUseAnswers;
+    console.log("El kullanımı yanıtları kaydedildi", handUseAnswers);
+
+    $id('handUseCard').classList.add('hidden');
+    $id('hearingRightCard').classList.remove('hidden');
+});
     // El kullanımı yanıtlarını kaydet
     const handUseAnswers = {};
     document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
