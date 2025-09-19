@@ -14,7 +14,7 @@
     h1{font-size:20px;margin-bottom:8px}
     .hidden{display:none}
     .card{padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
-    input[type=text], input[type=number], select{padding:8px;margin:6px 0;width:100% ;box-sizing:border-box}
+    input[type=text], input[type=number], select{padding:8px;margin:6px 0;width:100%;box-sizing:border-box}
     .respRow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .respBtn{
       font-size:2rem;
@@ -27,44 +27,38 @@
       cursor:pointer;
       transition:background-color 0.2s;
     }
-    .respBtn-active {
-        background-color: #bdbdbd;
-    }
-    #warning{color:#8b0000;font-weight:600}
+    .respBtn-active {background-color:#bdbdbd}
     .small{font-size:13px;color:#666}
-    .question-group {margin-bottom: 12px;}
-    .radio-label { display: block; margin-bottom: 4px; }
+    .question-group{margin-bottom:12px}
   </style>
 </head>
 <body>
   <h1>Dikotik Dinleme Izmir</h1>
 
-  <!-- Katılımcı bilgileri -->
+  <!-- Katılımcı Bilgileri -->
   <div id="participantCard" class="card">
     <h3>Katılımcı Bilgileri</h3>
-    <div><input id="name" placeholder="Ad"></div>
-    <div><input id="surname" placeholder="Soyad"></div>
-    <div><input id="age" type="number" placeholder="Yaş"></div>
-    <div><input id="race" placeholder="Irk"></div>
-    <div><input id="motherTongue" placeholder="Anadil"></div>
-    <div>
-      <select id="gender">
-        <option value="">Cinsiyet seçin</option>
-        <option value="Kadın">Kadın</option>
-        <option value="Erkek">Erkek</option>
-        <option value="Diğer">Diğer</option>
-      </select>
-    </div>
+    <input id="name" placeholder="Ad">
+    <input id="surname" placeholder="Soyad">
+    <input id="age" type="number" placeholder="Yaş">
+    <input id="race" placeholder="Irk">
+    <input id="motherTongue" placeholder="Anadil">
+    <select id="gender">
+      <option value="">Cinsiyet seçin</option>
+      <option value="Kadın">Kadın</option>
+      <option value="Erkek">Erkek</option>
+      <option value="Diğer">Diğer</option>
+    </select>
     <div style="margin-top:8px"><button id="toStaiBtn">Devam</button></div>
-    <div id="codeInfo" class="small" style="margin-top:8px"></div>
+    <div id="codeInfo" class="small"></div>
   </div>
 
-  <!-- STAI Form -->
+  <!-- STAI -->
   <div id="staiTxiCard" class="card hidden">
     <h3>STAI-TXI Formu</h3>
-    <p class="small">Aşağıdaki soruları yanıtlayınız. Tümünü işaretlemeden devam edemezsiniz.</p>
+    <p class="small">Lütfen tüm soruları yanıtlayınız.</p>
     <div id="staiQuestions"></div>
-    <div style="margin-top:10px"><button id="toHandednessBtn">Devam</button></div>
+    <button id="toHandednessBtn">Devam</button>
   </div>
 
   <!-- El Kullanımı -->
@@ -72,127 +66,141 @@
     <h3>El Kullanımı Testi</h3>
     <p class="small">Her soruda en az bir kutucuk işaretleyiniz.</p>
     <div id="handUseQuestions"></div>
-    <div style="margin-top:10px"><button id="toHearingRightBtn">Devam</button></div>
+    <button id="toHearingRightBtn">Devam</button>
   </div>
 
-  <!-- (geri kalan tüm kartlar senin son gönderdiğinle aynı kalıyor) -->
+  <!-- İşitme testleri, oturumlar, denemeler, bitiş kartı -->
+  <!-- (Senin son sürümündeki kod burada devam ediyor) -->
 
 <script>
-/* ================== State ================== */
-let participant = {};
-let results = [];
-let currentTrial = -1;
-let sessionOrder = [];
-let currentSessionIndex = 0;
-let rightLevel = 0.5, leftLevel = 0.5;
-let trialTimeout = null;
-let isResponseAllowed = false;
+// ================== Helpers ==================
+function $id(i){return document.getElementById(i);}
+function showWarning(msg){alert(msg);}
 
-/* ================ STAI Soruları ================ */
-const staiQuestions = [
-    "Şu anda sakinim",
-    "Kendimi emniyette hissediyorum",
-    "Şu anda sinirlerim gergin",
-    "Pişmanlık duygusu içindeyim",
-    "Şu anda huzur içindeyim",
-    "Şu anda hiç keyfim yok",
-    "Başıma geleceklerden endişe ediyorum",
-    "Kendimi dinlenmiş hissediyorum",
-    "Şu anda kaygılıyım",
-    "Kendimi rahat hissediyorum",
-    "Kendime güvenim var",
-    "Şu anda asabım bozuk",
-    "Çok sinirliyim",
-    "Sinirlerimin çok gergin olduğunu hissediyorum",
-    "Kendimi rahatlamış hissediyorum",
-    "Şu anda halimden memnunum",
-    "Şu anda endişeliyim",
-    "Heyecandan kendimi şaşkına dönmüş hissediyorum",
-    "Şu anda sevinçliyim",
-    "Şu anda keyfim yerinde"
-];
-function renderStaiTxiForm() {
-    const container = document.getElementById('staiQuestions');
-    container.innerHTML = '';
-    staiQuestions.forEach((q, i) => {
-        const questionHtml = `
-            <div class="question-group">
-                <p>${i + 1}. ${q}</p>
-                <label><input type="radio" name="staiQ${i + 1}" value="1"> Hiç</label>
-                <label><input type="radio" name="staiQ${i + 1}" value="2"> Biraz</label>
-                <label><input type="radio" name="staiQ${i + 1}" value="3"> Çok</label>
-                <label><input type="radio" name="staiQ${i + 1}" value="4"> Tamamıyla</label>
-            </div>
-        `;
-        container.innerHTML += questionHtml;
-    });
+// Türkçe karakter temizleme
+function trToEn(str){
+  return str.replace(/Ğ/g,'G').replace(/ğ/g,'g')
+            .replace(/İ/g,'I').replace(/ı/g,'i')
+            .replace(/Ş/g,'S').replace(/ş/g,'s')
+            .replace(/Ü/g,'U').replace(/ü/g,'u')
+            .replace(/Ö/g,'O').replace(/ö/g,'o')
+            .replace(/Ç/g,'C').replace(/ç/g,'c');
 }
 
-/* ================ El Kullanımı Soruları ================ */
-const handUseQuestions = [
-    "Yazmak",
-    "Çizmek",
-    "Taş Atmak",
-    "Makas kullanmak",
-    "Diş fırçası kullanmak",
-    "Bıçak kullanmak",
-    "Kaşık kullanmak",
-    "Süpürge kullanmak (üst el)",
-    "Kibrit çakmak",
-    "Kutunun kapağını açmak"
-];
-function renderHandUseForm() {
-    const container = document.getElementById('handUseQuestions');
-    container.innerHTML = '';
-    handUseQuestions.forEach((q, i) => {
-        const questionId = `handQ${i + 1}`;
-        const questionHtml = `
-            <div class="question-group" data-question-id="${questionId}">
-                <label>${i + 1}. ${q}</label>
-                <input type="checkbox" class="left-option"> Sol
-                <input type="checkbox" class="right-option"> Sağ
-            </div>
-        `;
-        container.innerHTML += questionHtml;
-    });
+// ================== Katılımcı Kodu ==================
+let participant={};
+function makeParticipantCode(){
+  const name=trToEn(($id('name').value||'').trim());
+  const surname=trToEn(($id('surname').value||'').trim());
+  const age=($id('age').value||'').trim();
+  const gender=($id('gender').value||'').trim();
+  const race=($id('race').value||'').trim();
+  const motherTongue=($id('motherTongue').value||'').trim();
+
+  if(!name||!surname||!age||!gender||!race||!motherTongue){return false;}
+
+  participant.age=age;participant.gender=gender;
+  participant.race=race;participant.motherTongue=motherTongue;
+
+  const n2=(name.padEnd(2).slice(0,2)).toUpperCase();
+  const s2=(surname.padEnd(2).slice(0,2)).toUpperCase();
+  const four=(n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);
+  const rand5=Math.floor(10000+Math.random()*90000);
+  const code=four+"_"+rand5;
+  participant.code=code;
+  $id('codeInfo').innerText="Katılımcı kodu: "+code;
+  return true;
 }
 
-/* ================ Geçiş Kontrolleri ================= */
+// ================== Sorular ==================
+const staiQuestions=[
+ "Şu anda sakinim","Kendimi emniyette hissediyorum","Şu anda sinirlerim gergin",
+ "Pişmanlık duygusu içindeyim","Şu anda huzur içindeyim","Şu anda hiç keyfim yok",
+ "Başıma geleceklerden endişe ediyorum","Kendimi dinlenmiş hissediyorum","Şu anda kaygılıyım",
+ "Kendimi rahat hissediyorum","Kendime güvenim var","Şu anda asabım bozuk",
+ "Çok sinirliyim","Sinirlerimin çok gergin olduğunu hissediyorum","Kendimi rahatlamış hissediyorum",
+ "Şu anda halimden memnunum","Şu anda endişeliyim","Heyecandan kendimi şaşkına dönmüş hissediyorum",
+ "Şu anda sevinçliyim","Şu anda keyfim yerinde"
+];
+function renderStaiTxiForm(){
+  const c=$id('staiQuestions');c.innerHTML='';
+  staiQuestions.forEach((q,i)=>{
+    c.innerHTML+=`
+    <div class="question-group">
+      <p>${i+1}. ${q}</p>
+      <label><input type="radio" name="staiQ${i+1}" value="1"> Hiç</label>
+      <label><input type="radio" name="staiQ${i+1}" value="2"> Biraz</label>
+      <label><input type="radio" name="staiQ${i+1}" value="3"> Çok</label>
+      <label><input type="radio" name="staiQ${i+1}" value="4"> Tamamıyla</label>
+    </div>`;
+  });
+}
+
+const handUseQuestions=["Yazmak","Çizmek","Taş Atmak","Makas kullanmak","Diş fırçası kullanmak","Bıçak kullanmak","Kaşık kullanmak","Süpürge kullanmak (üst el)","Kibrit çakmak","Kutunun kapağını açmak"];
+function renderHandUseForm(){
+  const c=$id('handUseQuestions');c.innerHTML='';
+  handUseQuestions.forEach((q,i)=>{
+    c.innerHTML+=`
+    <div class="question-group" data-question-id="handQ${i+1}">
+      <label>${i+1}. ${q}</label>
+      <input type="checkbox" class="left-option"> Sol
+      <input type="checkbox" class="right-option"> Sağ
+    </div>`;
+  });
+}
+
+// ================== Geçiş Kontrolleri ==================
+
+// Katılımcı -> STAI
+$id('toStaiBtn').addEventListener('click',()=>{
+  if(!makeParticipantCode()){alert("Lütfen tüm bilgileri doldurun.");return;}
+  $id('participantCard').classList.add('hidden');
+  $id('staiTxiCard').classList.remove('hidden');
+  renderStaiTxiForm();
+});
+
 // STAI -> El Kullanımı
-document.getElementById('toHandednessBtn').addEventListener('click', () => {
-    let allAnswered = true;
-    for (let i = 1; i <= staiQuestions.length; i++) {
-        if (!document.querySelector(`input[name="staiQ${i}"]:checked`)) {
-            allAnswered = false;
-            break;
-        }
-    }
-    if (!allAnswered) {
-        alert("Lütfen tüm STAI sorularını yanıtlayın.");
-        return;
-    }
-    document.getElementById('staiTxiCard').classList.add('hidden');
-    document.getElementById('handUseCard').classList.remove('hidden');
-    renderHandUseForm();
+$id('toHandednessBtn').addEventListener('click',()=>{
+  let allAnswered=true;
+  for(let i=1;i<=staiQuestions.length;i++){
+    if(!$(`input[name="staiQ${i}"]:checked`)){allAnswered=false;break;}
+  }
+  if(!allAnswered){alert("Lütfen tüm STAI sorularını yanıtlayın.");return;}
+  const staiAnswers={};
+  document.querySelectorAll('#staiQuestions input[type="radio"]:checked').forEach(inp=>{
+    staiAnswers[inp.name]=inp.value;
+  });
+  participant.staiAnswers=staiAnswers;
+  $id('staiTxiCard').classList.add('hidden');
+  $id('handUseCard').classList.remove('hidden');
+  renderHandUseForm();
 });
 
 // El Kullanımı -> İşitme Testi
-document.getElementById('toHearingRightBtn').addEventListener('click', () => {
-    let allAnswered = true;
-    document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
-        const leftChecked = group.querySelector('.left-option').checked;
-        const rightChecked = group.querySelector('.right-option').checked;
-        if (!leftChecked && !rightChecked) {
-            allAnswered = false;
-        }
-    });
-    if (!allAnswered) {
-        alert("Lütfen tüm El Kullanımı sorularını yanıtlayın.");
-        return;
-    }
-    document.getElementById('handUseCard').classList.add('hidden');
-    document.getElementById('hearingRightCard').classList.remove('hidden');
+$id('toHearingRightBtn').addEventListener('click',()=>{
+  let allAnswered=true;
+  document.querySelectorAll('#handUseQuestions .question-group').forEach(g=>{
+    const l=g.querySelector('.left-option').checked;
+    const r=g.querySelector('.right-option').checked;
+    if(!l&&!r) allAnswered=false;
+  });
+  if(!allAnswered){alert("Lütfen tüm El Kullanımı sorularını yanıtlayın.");return;}
+  const handUseAnswers={};
+  document.querySelectorAll('#handUseQuestions .question-group').forEach(g=>{
+    const id=g.dataset.questionId;
+    const l=g.querySelector('.left-option').checked;
+    const r=g.querySelector('.right-option').checked;
+    if(l&&r)handUseAnswers[id]='both';
+    else if(l)handUseAnswers[id]='left';
+    else if(r)handUseAnswers[id]='right';
+  });
+  participant.handUseAnswers=handUseAnswers;
+  $id('handUseCard').classList.add('hidden');
+  $id('hearingRightCard').classList.remove('hidden');
 });
+
+// Kısayol seçici
+function $(sel){return document.querySelector(sel);}
 </script>
 </body>
 </html>
