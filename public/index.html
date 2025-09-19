@@ -210,33 +210,69 @@ async function checkSampleFile(){
 }
 
 /* ================ Participant code + fields ======================== */
-function makeParticipantCode(){
-  const name = trToEn(($id('name').value || '').trim());
-  const surname = trToEn(($id('surname').value || '').trim());
-  const age = ($id('age').value || '').trim();
-  const gender = ($id('gender').value || '').trim();
-  const race = ($id('race').value || '').trim();
-  const motherTongue = ($id('motherTongue').value || '').trim();
-  
-  if (!name || !surname || !age || !gender || !race || !motherTongue) {
-      showWarning("Lütfen tüm zorunlu alanları (Ad, Soyad, Yaş, Cinsiyet, Irk, Anadil) doldurun.");
-      return false;
-  }
+/* ================ Participant code + fields (DEBUG VERSION) ======================== */
+function makeParticipantCode() {
+    // Her bir alanı ayrı ayrı kontrol edelim
+    const nameInput = $id('name');
+    if (!nameInput.value || nameInput.value.trim() === '') {
+        showWarning("Hata: 'Ad' alanı boş bırakılamaz.");
+        return false;
+    }
 
-  participant.age = age;
-  participant.gender = gender;
-  participant.race = race;
-  participant.motherTongue = motherTongue;
-  
-  const n2 = (name.padEnd(2).slice(0,2)).toUpperCase();
-  const s2 = (surname.padEnd(2).slice(0,2)).toUpperCase();
-  const four = (n2+s2).replace(/[^A-Z]/g,'X').slice(0,4);
-  const rand5 = Math.floor(10000 + Math.random()*90000);
-  const code = four + '_' + String(rand5);
-  participant.code = code;
-  $id('codeInfo').innerText = "Katılımcı kodu: " + code + "  (yaş: "+participant.age+", cinsiyet: "+participant.gender+", ırk: "+participant.race+", anadil: "+participant.motherTongue+")";
-  console.log("Katılımcı kodu oluşturuldu: "+code);
-  return true;
+    const surnameInput = $id('surname');
+    if (!surnameInput.value || surnameInput.value.trim() === '') {
+        showWarning("Hata: 'Soyad' alanı boş bırakılamaz.");
+        return false;
+    }
+
+    const ageInput = $id('age');
+    if (!ageInput.value || ageInput.value.trim() === '') {
+        showWarning("Hata: 'Yaş' alanı boş bırakılamaz.");
+        return false;
+    }
+
+    const raceInput = $id('race');
+    if (!raceInput.value || raceInput.value.trim() === '') {
+        showWarning("Hata: 'Irk' alanı boş bırakılamaz.");
+        return false;
+    }
+    
+    const motherTongueInput = $id('motherTongue');
+    if (!motherTongueInput.value || motherTongueInput.value.trim() === '') {
+        showWarning("Hata: 'Anadil' alanı boş bırakılamaz.");
+        return false;
+    }
+
+    const genderSelect = $id('gender');
+    if (!genderSelect.value || genderSelect.value.trim() === '') {
+        showWarning("Hata: 'Cinsiyet' seçimi yapılmalıdır.");
+        return false;
+    }
+
+    // Eğer tüm kontrollerden geçtiyse, normal işlemlere devam et
+    console.log("Tüm alanlar dolu, katılımcı kodu oluşturuluyor...");
+    
+    const name = trToEn(nameInput.value.trim());
+    const surname = trToEn(surnameInput.value.trim());
+    const age = ageInput.value.trim();
+    const gender = genderSelect.value.trim();
+    const race = raceInput.value.trim();
+    const motherTongue = motherTongueInput.value.trim();
+
+    participant.age = age;
+    participant.gender = gender;
+    participant.race = race;
+    participant.motherTongue = motherTongue;
+
+    const n2 = (name.padEnd(2).slice(0, 2)).toUpperCase();
+    const s2 = (surname.padEnd(2).slice(0, 2)).toUpperCase();
+    const four = (n2 + s2).replace(/[^A-Z]/g, 'X').slice(0, 4);
+    const rand5 = Math.floor(10000 + Math.random() * 90000);
+    const code = four + '_' + String(rand5);
+    participant.code = code;
+    $id('codeInfo').innerText = "Katılımcı kodu: " + code + "  (yaş: " + participant.age + ", cinsiyet: " + participant.gender + ", ırk: " + participant.race + ", anadil: " + participant.motherTongue + ")";
+    console.log("Katılımcı kodu oluşturuldu: " + code);
+    return true;
 }
 
 /* ================ WebAudio 1500Hz (kanal ayrımı) =================== */
