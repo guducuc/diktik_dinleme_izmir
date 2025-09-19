@@ -520,9 +520,11 @@ function startSession(){
 }
 
 async function playStim(stim, session){
-  isResponseAllowed = (session !== 'training');
+  // Training'de de yanıt verilebilsin ama kaydedilmesin
+  isResponseAllowed = true;
   const audioEl = $id('stimAudio');
-  
+  ...
+}
   try {
     audioEl.src = "/sounds/silence.wav";
     await audioEl.play();
@@ -537,7 +539,7 @@ async function playStim(stim, session){
     trialTimeout = setTimeout(() => {
         console.log(delay/1000 + " saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
         results.push({
-            session: sessionOrder[currentSessionIndex],
+          session: sessionOrder[currentSessionIndex],
             trial: currentTrial + 1,
             stim: stim,
             response: "no_response",
@@ -577,6 +579,7 @@ function nextTrial(){
 }
 
 /* cevap butonları */
+/* cevap butonları */
 document.querySelectorAll('.respBtn').forEach(btn => {
     btn.addEventListener('click', () => {
         if (!isResponseAllowed) {
@@ -592,33 +595,40 @@ document.querySelectorAll('.respBtn').forEach(btn => {
         const resp = btn.dataset.val;
         const stim = mainPlaylist[currentTrial];
 
+        // Butona basıldığında aktif sınıfını ekle
         btn.classList.add('respBtn-active');
 
+        // 1 saniye sonra rengi normale döndür
         setTimeout(() => {
             btn.classList.remove('respBtn-active');
         }, 1000);
 
-        results.push({
-            session: sessionOrder[currentSessionIndex],
-            trial: currentTrial + 1,
-            stim: stim,
-            response: resp,
-            rightLevel: "",
-            leftLevel: "",
-            age: participant.age || "",
-            gender: participant.gender || "",
-            race: participant.race || "",
-            motherTongue: participant.motherTongue || "",
-            code: participant.code || ""
-        });
-        console.log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
+        // === Training oturumunda kayıt yapılmasın ===
+        if (sessionOrder[currentSessionIndex] !== "training") {
+            results.push({
+                session: sessionOrder[currentSessionIndex],
+                trial: currentTrial + 1,
+                stim: stim,
+                response: resp,
+                rightLevel: "",
+                leftLevel: "",
+                age: participant.age || "",
+                gender: participant.gender || "",
+                race: participant.race || "",
+                motherTongue: participant.motherTongue || "",
+                code: participant.code || ""
+            });
+            console.log("Yanıt kaydedildi: " + resp + " (" + stim + ", " + sessionOrder[currentSessionIndex] + ")");
+        } else {
+            console.log("Training yanıtı (kaydedilmiyor): " + resp);
+        }
 
+        // Sonraki denemeye geçiş
         setTimeout(() => {
             nextTrial();
         }, 4000);
     });
 });
-
 function endExperiment(){
   $id('endCard').classList.remove('hidden');
   console.log("Deney tamamlandı, toplam yanıt sayısı: "+results.length);
