@@ -417,34 +417,6 @@ $id('toHearingRightBtn').addEventListener('click', () => {
     $id('hearingRightCard').classList.remove('hidden');
 });
 
-    if (!allHandUseAnswered) {
-        alert("Lütfen devam etmeden önce her işlem için en az bir el seçeneği işaretleyin.");
-        return; // Fonksiyonu durdur ve ilerlemeyi engelle
-    }
-    // --- YENİ EKLENEN DOĞRULAMA KODU SONU ---
-
-    // El kullanımı yanıtlarını kaydet
-    const handUseAnswers = {};
-    document.querySelectorAll('#handUseQuestions .question-group').forEach(group => {
-        const questionId = group.dataset.questionId;
-        const leftChecked = group.querySelector('.left-option').checked;
-        const rightChecked = group.querySelector('.right-option').checked;
-        if (leftChecked && rightChecked) {
-            handUseAnswers[questionId] = 'both';
-        } else if (leftChecked) {
-            handUseAnswers[questionId] = 'left';
-        } else if (rightChecked) {
-            handUseAnswers[questionId] = 'right';
-        } else {
-            handUseAnswers[questionId] = 'no_response';
-        }
-    });
-    participant.handUseAnswers = handUseAnswers;
-    console.log("El kullanımı yanıtları kaydedildi", handUseAnswers);
-    
-    $id('handUseCard').classList.add('hidden');
-    $id('hearingRightCard').classList.remove('hidden');
-});
 /* ================ Birleştirilmiş İşitme Kontrolü ===================== */
 
 // Sağ kulak oynatma butonu (değişiklik yok)
