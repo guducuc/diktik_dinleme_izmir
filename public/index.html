@@ -523,8 +523,7 @@ async function playStim(stim, session){
   // Training'de de yanıt verilebilsin ama kaydedilmesin
   isResponseAllowed = true;
   const audioEl = $id('stimAudio');
-  ...
-}
+  
   try {
     audioEl.src = "/sounds/silence.wav";
     await audioEl.play();
@@ -538,19 +537,26 @@ async function playStim(stim, session){
 
     trialTimeout = setTimeout(() => {
         console.log(delay/1000 + " saniye içinde yanıt verilmedi, sonraki heceye geçiliyor.");
-        results.push({
-          session: sessionOrder[currentSessionIndex],
-            trial: currentTrial + 1,
-            stim: stim,
-            response: "no_response",
-            rightLevel: "",
-            leftLevel: "",
-            age: participant.age || "",
-            gender: participant.gender || "",
-            race: participant.race || "",
-            motherTongue: participant.motherTongue || "",
-            code: participant.code || ""
-        });
+        
+        // === Training sırasında "no_response" kaydetme ===
+        if (sessionOrder[currentSessionIndex] !== "training") {
+            results.push({
+                session: sessionOrder[currentSessionIndex],
+                trial: currentTrial + 1,
+                stim: stim,
+                response: "no_response",
+                rightLevel: "",
+                leftLevel: "",
+                age: participant.age || "",
+                gender: participant.gender || "",
+                race: participant.race || "",
+                motherTongue: participant.motherTongue || "",
+                code: participant.code || ""
+            });
+        } else {
+            console.log("Training no_response (kaydedilmiyor)");
+        }
+
         nextTrial();
     }, delay);
 
