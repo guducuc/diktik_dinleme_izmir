@@ -10,44 +10,56 @@
   <meta name="emailjs-template"content="template_7elc4wi">
 
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:12px;color:#111;max-width:300px;margin:auto}
-    h1{font-size:20px;margin-bottom:8px}
-    .hidden{display:none}
-    .card{padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
-    input[type=text], input[type=number], select{padding:8px;margin:6px 0;width:100% ;box-sizing:border-box}
-    .respRow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
-    .respBtn{
-      font-size:2rem;
-      padding:18px 26px;
-      margin:6px;
-      min-width:120px;
-      border-radius:10px;
-      border:1px solid #444;
-      background:#f2f2f2;
-      cursor:pointer;
+    body {
+      font-family: system-ui,Segoe UI,Roboto,Arial;
+      margin: 12px;
+      color: #111;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size:20px; margin-bottom:8px }
+    .hidden { display:none }
+    .card {
+      padding:12px; border:1px solid #ddd;
+      border-radius:8px; margin-bottom:12px
+    }
+    input[type=text], input[type=number], select {
+      padding:8px; margin:6px 0; width:100%;
+      box-sizing:border-box
+    }
+    .respRow {
+      display:flex; flex-wrap:wrap;
+      gap:10px; align-items:center; justify-content:center;
+    }
+    .respBtn {
+      font-size:2rem; padding:20px 30px;
+      margin:6px; min-width:120px;
+      border-radius:10px; border:1px solid #444;
+      background:#f2f2f2; cursor:pointer;
       transition:background-color 0.2s;
     }
-    .respBtn-active {
-        background-color: #bdbdbd;
-    }
-    #warning{color:#8b0000;font-weight:600}
-    .small{font-size:13px;color:#666}
-    .question-group {margin-bottom: 12px;}
-    .radio-label { display: block; margin-bottom: 4px; }
+    .respBtn-active { background-color:#bdbdbd; }
     button {
       font-size:1.2rem;
       padding:14px 24px;
-      margin-top:10px;
+      width:100%;
+      max-width:300px;
       border-radius:8px;
       border:1px solid #444;
-      background:#eee;
       cursor:pointer;
+      margin-top:6px;
     }
+    #warning { color:#8b0000;font-weight:600 }
+    .small { font-size:13px;color:#666 }
+    .question-group { margin-bottom:12px; }
+    .radio-label { display:block; margin-bottom:4px; }
   </style>
 </head>
 <body>
   <h1>Dikotik Dinleme Izmir</h1>
 
+  <!-- Katılımcı Bilgileri -->
   <div id="participantCard" class="card">
     <h3>Katılımcı Bilgileri</h3>
     <div><input id="name" placeholder="Adınız"></div>
@@ -63,47 +75,45 @@
         <option value="Diğer">Diğer</option>
       </select>
     </div>
-    <div style="margin-top:8px"><button id="toStaiBtn">Devam</button></div>
+    <button id="toStaiBtn">Devam</button>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
 
+  <!-- STAI Formu -->
   <div id="staiTxiCard" class="card hidden">
     <h3>STAI-TXI Formu</h3>
     <div id="staiQuestions"></div>
-    <div>
-      <button id="backToParticipantBtn">Geri</button>
-      <button id="toHandednessBtn">Devam</button>
-    </div>
+    <button id="backToParticipantBtn">Geri</button>
+    <button id="toHandednessBtn">Devam</button>
   </div>
 
+  <!-- El Kullanımı -->
   <div id="handUseCard" class="card hidden">
     <h3>El Kullanımı Testi</h3>
     <div id="handUseQuestions"></div>
-    <div>
-      <button id="backToStaiBtn">Geri</button>
-      <button id="toHearingRightBtn">Devam</button>
-    </div>
+    <button id="backToStaiBtn">Geri</button>
+    <button id="toHearingRightBtn">Devam</button>
   </div>
 
+  <!-- İşitme testi -->
   <div id="hearingRightCard" class="card hidden">
     <h3>İşitme Kontrolü</h3>
-    <div>
-      <div><strong>Sağ kulak (1500 Hz)</strong></div>
+    <div id="rightEarControls">
+      <strong>Sağ kulak (1500 Hz)</strong><br>
       <input type="range" id="rightSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playRight">Oynat / Durdur</button>
     </div>
     <div id="leftEarControls" class="hidden">
-      <div><strong>Sol kulak (1500 Hz)</strong></div>
+      <strong>Sol kulak (1500 Hz)</strong><br>
       <input type="range" id="leftSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playLeft">Oynat / Durdur</button>
     </div>
-    <div>
-      <button id="backToHandednessBtn">Geri</button>
-      <button id="confirmRightEarBtn">Sağ Kulağı Onayla</button>
-      <button id="toSessionIntro" class="hidden">Devam</button>
-    </div>
+    <button id="backToHandednessBtn">Geri</button>
+    <button id="confirmRightEarBtn">Sağ Kulağı Onayla</button>
+    <button id="toSessionIntro" class="hidden">Devam</button>
   </div>
 
+  <!-- Oturum giriş ekranı -->
   <div id="sessionIntro" class="card hidden">
     <h3 id="sessionTitle"></h3>
     <p id="sessionInstr"></p>
@@ -114,6 +124,7 @@
     <h3>Test şimdi başlıyor...</h3>
   </div>
 
+  <!-- Denemeler -->
   <div id="trialCard" class="card hidden">
     <div id="trialStatus" class="small"></div>
     <audio id="stimAudio" controls style="display:none" preload="auto"></audio>
@@ -127,6 +138,7 @@
     </div>
   </div>
 
+  <!-- Bitiş -->
   <div id="endCard" class="card hidden">
     <h3>Deney tamamlandı ✅</h3>
     <button id="downloadBtn">CSV İndir</button>
@@ -135,121 +147,56 @@
   </div>
 
 <script>
-/* ================== State ================== */
-let participant = {};
-let results = [];
-let currentTrial = -1;
-let sessionOrder = [];
-let currentSessionIndex = 0;
-let rightLevel = 0.5, leftLevel = 0.5;
-let trialTimeout = null;
-let isResponseAllowed = false;
-
-/* ================ Playlist ================= */
+/* === Önemli kısımlar: sadece farkları === */
 const mainPlaylist = [
-  "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav"
+  "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav"
 ];
-const trainingPlaylist = [
-  "LBA-RBA.wav","LDA-RDA.wav","LGA-RGA.wav"
-];
+const trainingPlaylist = ["LBA-RBA.wav","LDA-RDA.wav"];
 
-/* ================ Helpers ================ */
-function $id(i){ return document.getElementById(i); }
-function shuffle(array) {
-  let currentIndex = array.length, randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-  }
-  return array;
-}
-
-/* ================== Session ================== */
-function startSession(){
-  currentTrial = -1;
-  $id('trialCard').classList.remove('hidden');
-  nextTrial();
-}
-
-async function playStim(stim, session){
+function playStim(stim, session){
   isResponseAllowed = true;
-  const audioEl = $id('stimAudio');
-  try {
-    audioEl.src = "/sounds/erkek/" + stim;
-    await audioEl.play();
-    trialTimeout = setTimeout(() => {
-      if(session !== "training"){
-        results.push({session:session, trial:currentTrial+1, stim:stim, response:"no_response", code:participant.code||""});
-      }
-      nextTrial();
-    }, 5000);
-  } catch(e){ console.error(e); }
-}
-
-function nextTrial(){
-  currentTrial++;
-  const playlist = (sessionOrder[currentSessionIndex]==="training") ? trainingPlaylist : mainPlaylist;
-  if(currentTrial >= playlist.length){
-    $id('trialCard').classList.add('hidden');
-    currentSessionIndex++;
-    if(currentSessionIndex < sessionOrder.length){
-      showSessionIntro();
-    } else {
-      endExperiment();
-    }
-    return;
-  }
-  const stim = playlist[currentTrial];
-  $id('trialStatus').innerText = "Deneme "+(currentTrial+1)+"/"+playlist.length;
-  playStim(stim, sessionOrder[currentSessionIndex]);
+  const audioEl = document.getElementById('stimAudio');
+  audioEl.src = "/sounds/erkek/" + stim;
+  audioEl.play();
+  trialTimeout = setTimeout(()=>nextTrial(), 5000);
 }
 
 document.querySelectorAll('.respBtn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
+  btn.addEventListener('click', ()=>{
     if(!isResponseAllowed) return;
-    if(trialTimeout){clearTimeout(trialTimeout);trialTimeout=null;}
+    if(trialTimeout){clearTimeout(trialTimeout);}
     const resp = btn.dataset.val;
-    const stim = (sessionOrder[currentSessionIndex]==="training") ? trainingPlaylist[currentTrial] : mainPlaylist[currentTrial];
+    const stim = (sessionOrder[currentSessionIndex]==="training")
+        ? trainingPlaylist[currentTrial]
+        : mainPlaylist[currentTrial];
     if(sessionOrder[currentSessionIndex]!=="training"){
-      results.push({session:sessionOrder[currentSessionIndex], trial:currentTrial+1, stim:stim, response:resp, code:participant.code||""});
+      results.push({
+        session: sessionOrder[currentSessionIndex],
+        trial: currentTrial+1,
+        stim: stim,
+        response: resp,
+        code: participant.code,
+        age: participant.age,
+        gender: participant.gender
+      });
     }
-    nextTrial();
+    setTimeout(()=>nextTrial(), 2000);
   });
 });
 
-/* ================== CSV ================== */
 function makeCsv(){
-  if(results.length===0) return null;
-  const header = Object.keys(results[0]).join(",");
-  const rows = results.map(r=>Object.values(r).join(","));
-  return [header,...rows].join("\n");
-}
-$id('downloadBtn').addEventListener('click',()=>{
-  const csv=makeCsv();
-  if(!csv) return;
-  const blob=new Blob([csv],{type:"text/csv"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download="results.csv";a.click();
-  URL.revokeObjectURL(url);
-});
-function endExperiment(){
-  $id('endCard').classList.remove('hidden');
-}
-
-/* ================== Session intro ================== */
-const instr = {
-  training:"Bu eğitim oturumudur.",
-  NF:"Serbest yanıt.",
-  FR:"Sağ kulağa odaklan.",
-  FL:"Sol kulağa odaklan."
-};
-function showSessionIntro(){
-  const s=sessionOrder[currentSessionIndex];
-  $id('sessionTitle').innerText="Oturum: "+s;
-  $id('sessionInstr').innerText=instr[s];
-  $id('sessionIntro').classList.remove('hidden');
+  const combined = [];
+  combined.push({
+    session:"info",
+    trial:0,
+    ...participant,
+    staiAnswers: JSON.stringify(participant.staiAnswers),
+    handUseAnswers: JSON.stringify(participant.handUseAnswers)
+  });
+  combined.push(...results);
+  const keys = Object.keys(combined[0]);
+  const rows = combined.map(r=>keys.map(k=>r[k]||"").join(","));
+  return [keys.join(","),...rows].join("\n");
 }
 </script>
 </body>
