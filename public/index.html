@@ -4,18 +4,49 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Dikotik Dinleme Izmir</title>
+
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:12px;color:#111;max-width:600px;margin-left:auto;margin-right:auto}
-    h1{font-size:20px;margin-bottom:8px}
-    .hidden{display:none}
-    .card{padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
-    input[type=text], input[type=number], select{padding:8px;margin:6px 0;width:100%;box-sizing:border-box}
-    .respRow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
-    .respBtn{font-size:2rem;padding:18px 26px;margin:6px;min-width:120px;border-radius:10px;border:1px solid #444;background:#f2f2f2;cursor:pointer;transition:background-color 0.2s;}
-    .respBtn-active{background-color:#bdbdbd}
-    button{font-size:1.2rem;padding:14px 24px;width:100%;max-width:300px;border-radius:8px;border:1px solid #444;cursor:pointer;margin-top:6px}
-    .small{font-size:13px;color:#666}
-    .question-group{margin-bottom:12px}
+    body {
+      font-family: system-ui,Segoe UI,Roboto,Arial;
+      margin: 12px;
+      color: #111;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size:20px; margin-bottom:8px; }
+    .hidden { display:none; }
+    .card {
+      padding:12px; border:1px solid #ddd;
+      border-radius:8px; margin-bottom:12px;
+    }
+    input[type=text], input[type=number], select {
+      padding:8px; margin:6px 0; width:100%; box-sizing:border-box;
+    }
+    .respRow {
+      display:flex; flex-wrap:wrap;
+      gap:10px; align-items:center; justify-content:center;
+    }
+    .respBtn {
+      font-size:2rem; padding:20px 30px;
+      margin:6px; min-width:120px;
+      border-radius:10px; border:1px solid #444;
+      background:#f2f2f2; cursor:pointer;
+      transition:background-color 0.2s;
+    }
+    .respBtn-active { background-color:#bdbdbd; }
+    button {
+      font-size:1.2rem;
+      padding:14px 24px;
+      width:100%;
+      max-width:300px;
+      border-radius:8px;
+      border:1px solid #444;
+      cursor:pointer;
+      margin-top:6px;
+    }
+    .small { font-size:13px;color:#666; }
+    .question-group { margin-bottom:12px; }
   </style>
 </head>
 <body>
@@ -24,17 +55,19 @@
   <!-- Katılımcı Bilgileri -->
   <div id="participantCard" class="card">
     <h3>Katılımcı Bilgileri</h3>
-    <input id="name" placeholder="Adınız">
-    <input id="surname" placeholder="Soyadınız">
-    <input id="age" type="number" placeholder="Yaşınız">
-    <input id="race" placeholder="Irkınız / Doğum yeriniz (ülke)">
-    <input id="motherTongue" placeholder="Anadiliniz">
-    <select id="gender">
-      <option value="">Cinsiyetinizi seçiniz</option>
-      <option value="Kadın">Kadın</option>
-      <option value="Erkek">Erkek</option>
-      <option value="Diğer">Diğer</option>
-    </select>
+    <div><input id="name" placeholder="Adınız"></div>
+    <div><input id="surname" placeholder="Soyadınız"></div>
+    <div><input id="age" type="number" placeholder="Yaşınız"></div>
+    <div><input id="race" placeholder="Irkınız/Doğum yeriniz (ülke)"></div>
+    <div><input id="motherTongue" placeholder="Anadiliniz"></div>
+    <div>
+      <select id="gender">
+        <option value="">Cinsiyetinizi seçiniz </option>
+        <option value="Kadın">Kadın</option>
+        <option value="Erkek">Erkek</option>
+        <option value="Diğer">Diğer</option>
+      </select>
+    </div>
     <button id="toStaiBtn">Devam</button>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
@@ -42,7 +75,6 @@
   <!-- STAI -->
   <div id="staiTxiCard" class="card hidden">
     <h3>STAI-TXI Formu</h3>
-    <div class="small">Tüm soruları işaretlemeden devam edemezsiniz.</div>
     <div id="staiQuestions"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
       <button id="backToParticipantBtn" style="flex:1;max-width:140px">Geri</button>
@@ -50,10 +82,9 @@
     </div>
   </div>
 
-  <!-- Hand use -->
+  <!-- El Kullanımı -->
   <div id="handUseCard" class="card hidden">
     <h3>El Kullanımı Testi</h3>
-    <div class="small">Her işlem için en az bir kutucuk işaretlenmelidir.</div>
     <div id="handUseQuestions"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
       <button id="backToStaiBtn" style="flex:1;max-width:140px">Geri</button>
@@ -61,7 +92,7 @@
     </div>
   </div>
 
-  <!-- Hearing -->
+  <!-- İşitme testi -->
   <div id="hearingRightCard" class="card hidden">
     <h3>İşitme Kontrolü</h3>
     <div id="rightEarControls">
@@ -69,13 +100,11 @@
       <input type="range" id="rightSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playRight">Oynat / Durdur</button>
     </div>
-
     <div id="leftEarControls" class="hidden" style="margin-top:10px">
       <strong>Sol kulak (1500 Hz)</strong><br>
       <input type="range" id="leftSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playLeft">Oynat / Durdur</button>
     </div>
-
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
       <button id="backToHandednessBtn" style="flex:1;max-width:140px">Geri</button>
       <button id="confirmRightEarBtn" style="flex:1;max-width:140px">Sağ Kulağı Onayla</button>
@@ -83,7 +112,7 @@
     </div>
   </div>
 
-  <!-- Session intro -->
+  <!-- Oturum intro -->
   <div id="sessionIntro" class="card hidden">
     <h3 id="sessionTitle"></h3>
     <p id="sessionInstr"></p>
@@ -95,7 +124,7 @@
     <div class="small">Test 10 saniye içinde başlayacak.</div>
   </div>
 
-  <!-- Trial -->
+  <!-- Denemeler -->
   <div id="trialCard" class="card hidden">
     <div id="trialStatus" class="small" style="margin-bottom:8px"></div>
     <audio id="stimAudio" controls style="display:none" preload="auto"></audio>
@@ -109,7 +138,7 @@
     </div>
   </div>
 
-  <!-- End -->
+  <!-- Bitiş -->
   <div id="endCard" class="card hidden">
     <h3>Deney tamamlandı ✅</h3>
     <button id="downloadBtn">CSV İndir</button>
@@ -117,7 +146,7 @@
   </div>
 
 <script>
-/* ---------- State ---------- */
+/* ================== State ================== */
 const participant = {};
 let results = [];
 let currentTrial = -1;
@@ -127,15 +156,26 @@ let rightLevel = 0.5, leftLevel = 0.5;
 let trialTimeout = null;
 let isResponseAllowed = false;
 
-/* ---------- Playlists ---------- */
+/* ================== Playlists ================== */
+/* Tam main playlist (senin önceden verdiğin uzun liste) */
 const mainPlaylist = [
-  "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav"
-];
-const trainingPlaylist = [
-  "LBA-RBA.wav","LDA-RDA.wav","LGA-RGA.wav"
+  "LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav",
+  "LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav",
+  "LKA-RKA.wav","LBA-RGA.wav","LKA-RPA.wav","LTA-RDA.wav","LGA-RKA.wav",
+  "LPA-RDA.wav","LGA-RGA.wav","LBA-RTA.wav","LGA-RDA.wav","LKA-RTA.wav",
+  "LDA-RPA.wav","LTA-RKA.wav","LPA-RPA.wav","LDA-RBA.wav","LGA-RTA.wav",
+  "LPA-RKA.wav","LTA-RBA.wav","LKA-RGA.wav","LTA-RTA.wav","LBA-RPA.wav",
+  "LDA-RTA.wav","LGA-RBA.wav","LTA-RPA.wav","LDA-RDA.wav","LKA-RBA.wav",
+  "LPA-RGA.wav"
 ];
 
-/* ---------- Helpers ---------- */
+/* Training list olarak istediğin 10 öğe */
+const trainingPlaylist = [
+  "LBA-RBA.wav","LDA-RDA.wav","LGA-RGA.wav","LKA-RKA.wav","LPA-RPA.wav",
+  "LTA-RTA.wav","LBA-RDA.wav","LDA-RGA.wav","LGA-RKA.wav","LKA-RTA.wav"
+];
+
+/* ================== Helpers ================== */
 function $id(id){ return document.getElementById(id); }
 function trToEn(str){
   return (str||'').replace(/Ğ/g,'G').replace(/ğ/g,'g').replace(/İ/g,'I').replace(/ı/g,'i')
@@ -144,7 +184,7 @@ function trToEn(str){
 }
 function shuffle(arr){ let a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 
-/* ---------- Render forms ---------- */
+/* ================== Render forms ================== */
 const staiQuestions = [
  "Şu anda sakinim","Kendimi emniyette hissediyorum","Şu anda sinirlerim gergin",
  "Pişmanlık duygusu içindeyim","Şu anda huzur içindeyim","Şu anda hiç keyfim yok",
@@ -175,7 +215,6 @@ const handUseQuestions = [
 ];
 function renderHandUseForm(){
   const cont = $id('handUseQuestions'); cont.innerHTML='';
-  // header
   cont.innerHTML += `<div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px"><div style="flex:2"></div><div style="width:60px;text-align:center">Sol</div><div style="width:60px;text-align:center">Sağ</div></div>`;
   handUseQuestions.forEach((q,i)=>{
     const id = `handQ${i+1}`;
@@ -197,7 +236,7 @@ function renderHandUseForm(){
   });
 }
 
-/* ---------- Participant code & navigation ---------- */
+/* ================== Participant & navigation ================== */
 function makeParticipantCode(){
   const name = trToEn($id('name').value||'').trim();
   const surname = trToEn($id('surname').value||'').trim();
@@ -219,7 +258,7 @@ function makeParticipantCode(){
   return true;
 }
 
-/* ---------- Event listeners: navigation ---------- */
+/* ---------- navigation listeners ---------- */
 $id('toStaiBtn').addEventListener('click',()=>{
   if(!makeParticipantCode()) return;
   $id('participantCard').classList.add('hidden');
@@ -233,18 +272,15 @@ $id('backToParticipantBtn').addEventListener('click',()=>{
 });
 
 $id('toHandednessBtn').addEventListener('click',()=>{
-  // check all stai answered
   for(let i=1;i<=staiQuestions.length;i++){
     if(!document.querySelector(`input[name="staiQ${i}"]:checked`)){
       alert("Lütfen tüm STAI sorularını yanıtlayın.");
       return;
     }
   }
-  // save
   const staiAnswers = {};
   document.querySelectorAll('#staiQuestions input[type="radio"]:checked').forEach(inp=> staiAnswers[inp.name]=inp.value);
   participant.staiAnswers = staiAnswers;
-  // go forward
   $id('staiTxiCard').classList.add('hidden');
   renderHandUseForm();
   $id('handUseCard').classList.remove('hidden');
@@ -264,7 +300,6 @@ $id('toHearingRightBtn').addEventListener('click',()=>{
       return;
     }
   }
-  // save responses
   const handAnswers = {};
   groups.forEach(g=>{
     const id = g.dataset.questionId;
@@ -278,14 +313,14 @@ $id('toHearingRightBtn').addEventListener('click',()=>{
   $id('hearingRightCard').classList.remove('hidden');
 });
 
-/* ---------- Back from hearing ---------- */
+/* ---------- back from hearing ---------- */
 $id('backToHandednessBtn').addEventListener('click',()=>{
   stopTone('right'); stopTone('left');
   $id('hearingRightCard').classList.add('hidden');
   $id('handUseCard').classList.remove('hidden');
 });
 
-/* ---------- 1500Hz tone via WebAudio ---------- */
+/* ================ 1500Hz via WebAudio ================ */
 let audioCtx = null, rightOsc=null, leftOsc=null, rightGain=null, leftGain=null;
 function ensureAudioCtx(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function startTone(channel){
@@ -311,6 +346,7 @@ function stopTone(channel){
     if(channel==='left' && leftOsc){ leftOsc.stop(); leftOsc.disconnect(); leftOsc=null; leftGain=null; }
   }catch(e){}
 }
+
 $id('playRight').addEventListener('click', ()=> {
   if(rightOsc) { stopTone('right'); $id('playRight').innerText='Oynat / Durdur'; }
   else { startTone('right'); $id('playRight').innerText='Durdur'; }
@@ -336,11 +372,10 @@ $id('confirmRightEarBtn').addEventListener('click', ()=>{
 $id('toSessionIntro').addEventListener('click', ()=>{
   stopTone('left');
   participant.hearing = { right:rightLevel, left:leftLevel };
-  // push hearing as first info row in results (not necessary but handy)
   results.unshift({ session:'hearing', trial:0, stim:'1500Hz', response:`r=${rightLevel},l=${leftLevel}`, code:participant.code||'' });
   $id('hearingRightCard').classList.add('hidden');
 
-  // prepare sessions: training + NF + FR/FL order randomized but alternate
+  // oturum sırasını hazırla
   const second = Math.random()<0.5 ? 'FR' : 'FL';
   const third = (second==='FR') ? 'FL' : 'FR';
   sessionOrder = ['training','NF', second, third];
@@ -348,13 +383,14 @@ $id('toSessionIntro').addEventListener('click', ()=>{
   showSessionIntro();
 });
 
-/* ---------- Session intro / start ---------- */
+/* ---------- session intro/start ---------- */
 const instr = {
-  training: "Eğitim oturumu. Dinleyin, yanıtlayabilirsiniz (cevaplar kayıt edilmez).",
+  training: "Eğitim oturumu. Dinleyin; yanıt verebilirsiniz (training cevapları kaydedilmez).",
   NF: "Her iki kulağınıza farklı heceler gelecek. En iyi duyduğunuz heceyi seçin.",
   FR: "Her iki kulağınıza farklı heceler gelecek. Sağ kulağa odaklanıp sağdan duyduğunuz heceyi seçin.",
   FL: "Her iki kulağınıza farklı heceler gelecek. Sol kulağa odaklanıp soldan duyduğunuz heceyi seçin."
 };
+
 function showSessionIntro(){
   const s = sessionOrder[currentSessionIndex];
   $id('sessionTitle').innerText = "Oturum: " + s;
@@ -362,15 +398,17 @@ function showSessionIntro(){
   $id('sessionIntro').classList.remove('hidden');
 }
 
+/* ---------- unlock audio (silence) ---------- */
 async function unlockAudioForPlayback(){
   try{
     const audioEl = $id('stimAudio');
+    // kullanıcının eklediği silence.wav dosyası burada oynatılarak audio açılır
     audioEl.muted = true;
-    audioEl.src = "/sounds/erkek/" + (trainingPlaylist[0] || mainPlaylist[0]);
+    audioEl.src = "/sounds/erkek/silence.wav";
     await audioEl.play();
     audioEl.pause();
     audioEl.muted = false;
-  }catch(e){ console.log("unlock audio:",e); }
+  }catch(e){ console.log("unlock audio error:", e); }
 }
 
 $id('sessionStartBtn').addEventListener('click', async ()=>{
@@ -387,30 +425,42 @@ function startSession(){
   nextTrial();
 }
 
+/* --- playStim: önce silence.wav, sonra gerçek stim --- */
 async function playStim(stim, session){
-  // allow responses in training too (but do not save)
   isResponseAllowed = true;
   const audioEl = $id('stimAudio');
-  try{
+  try {
+    // 1) kısa sessizlik kontrolü (kullanıcının silent dosyası)
+    audioEl.src = "/sounds/erkek/silence.wav";
+    // eğer silence uzun ise await ile bitmesini bekler; sessizlik dosyan kısa olmalı (ör. 200-500 ms)
+    await audioEl.play();
+    // bekleme: ya ses biterse onended tetikler, ama burada kısa route için pause yeterli
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    // 2) asıl stimulus
     audioEl.src = "/sounds/erkek/" + stim;
     await audioEl.play();
-    // set timeout depending on session
-    const delay = (session==='training') ? 4000 : 5000;
+
+    // zaman aşımı: training daha kısa, diğerleri daha uzun
+    const delay = (session === 'training') ? 4000 : 5000;
     trialTimeout = setTimeout(()=>{
       if(session !== 'training'){
-        // record no_response for non-training sessions
         results.push({ session: session, trial: currentTrial+1, stim: stim, response: 'no_response', code: participant.code||'', age: participant.age||'', gender: participant.gender||'' });
       }
       nextTrial();
     }, delay);
-  }catch(e){ console.warn("playStim error", e); nextTrial(); }
+
+  } catch (err) {
+    console.warn("playStim error:", err);
+    // hata olsa bile ilerle
+    nextTrial();
+  }
 }
 
 function nextTrial(){
   currentTrial++;
   const playlist = (sessionOrder[currentSessionIndex] === 'training') ? trainingPlaylist : mainPlaylist;
   if(currentTrial >= playlist.length){
-    // finish session
     $id('trialCard').classList.add('hidden');
     currentSessionIndex++;
     if(currentSessionIndex < sessionOrder.length){
@@ -425,16 +475,12 @@ function nextTrial(){
   playStim(stim, sessionOrder[currentSessionIndex]);
 }
 
-/* ---------- Response buttons ---------- */
+/* ---------- response buttons ---------- */
 document.querySelectorAll('.respBtn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    if(!isResponseAllowed){
-      alert("Lütfen hecenin çalmasını bekleyiniz.");
-      return;
-    }
-    if(trialTimeout){ clearTimeout(trialTimeout); trialTimeout=null; }
+    if(!isResponseAllowed){ alert("Lütfen hecenin çalmasını bekleyiniz."); return; }
+    if(trialTimeout){ clearTimeout(trialTimeout); trialTimeout = null; }
     const resp = btn.dataset.val;
-    // choose correct playlist to find stim
     const playlist = (sessionOrder[currentSessionIndex] === 'training') ? trainingPlaylist : mainPlaylist;
     const stim = playlist[currentTrial];
     if(sessionOrder[currentSessionIndex] !== 'training'){
@@ -443,16 +489,14 @@ document.querySelectorAll('.respBtn').forEach(btn=>{
       console.log("Training response (not saved):", resp, stim);
     }
     isResponseAllowed = false;
-    // small feedback
     btn.classList.add('respBtn-active');
     setTimeout(()=>btn.classList.remove('respBtn-active'), 700);
     setTimeout(()=>nextTrial(), 800);
   });
 });
 
-/* ---------- End and CSV ---------- */
+/* ---------- CSV & end ---------- */
 function makeCsv(){
-  // build combined header from participant info + stai/hand + results fields
   const info = {
     session: "info",
     trial: 0,
@@ -464,26 +508,21 @@ function makeCsv(){
     staiAnswers: participant.staiAnswers ? JSON.stringify(participant.staiAnswers) : '',
     handUseAnswers: participant.handUseAnswers ? JSON.stringify(participant.handUseAnswers) : ''
   };
-  // ensure we can generate header keys (union)
   const combined = [info, ...results];
-  const keysSet = new Set();
-  combined.forEach(obj => Object.keys(obj).forEach(k=>keysSet.add(k)));
+  const keysSet = new Set(); combined.forEach(o=>Object.keys(o).forEach(k=>keysSet.add(k)));
   const keys = Array.from(keysSet);
   const header = keys.join(',');
-  const rows = combined.map(r => keys.map(k => {
+  const rows = combined.map(r => keys.map(k=>{
     const v = r[k] === undefined || r[k] === null ? '' : String(r[k]).replace(/"/g,'""');
     return v.includes(',') ? `"${v}"` : v;
   }).join(','));
   return [header, ...rows].join('\n');
 }
-
 $id('downloadBtn').addEventListener('click', ()=>{
   const csv = makeCsv();
   if(!csv){ alert("Henüz veri yok."); return; }
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const now = new Date();
-  const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const now = new Date(); const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
   const filename = `${participant.code||'participant'}_${stamp}.csv`;
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
   $id('doneLog').innerText = `CSV oluşturuldu: ${filename}`;
@@ -491,10 +530,10 @@ $id('downloadBtn').addEventListener('click', ()=>{
 
 function endExperiment(){
   $id('endCard').classList.remove('hidden');
-  console.log("Deney bitti. Toplam kayıt sayısı:", results.length);
+  console.log("Deney tamamlandı. Kayıt sayısı:", results.length);
 }
 
-/* ---------- On load checks ---------- */
+/* ---------- on load ---------- */
 window.addEventListener('load', ()=>{
   renderStaiTxiForm();
   renderHandUseForm();
