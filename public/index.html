@@ -215,7 +215,12 @@ const handUseQuestions = [
 ];
 function renderHandUseForm(){
   const cont = $id('handUseQuestions'); cont.innerHTML='';
-  cont.innerHTML += `<div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px"><div style="flex:2"></div><div style="width:60px;text-align:center">Sol</div><div style="width:60px;text-align:center">Sağ</div></div>`;
+  cont.innerHTML += `
+    <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
+      <div style="flex:2"></div>
+      <div style="width:60px;text-align:center">Sol</div>
+      <div style="width:60px;text-align:center">Sağ</div>
+    </div>`;
   handUseQuestions.forEach((q,i)=>{
     const id = `handQ${i+1}`;
     cont.innerHTML += `
@@ -484,16 +489,24 @@ document.querySelectorAll('.respBtn').forEach(btn=>{
     const playlist = (sessionOrder[currentSessionIndex] === 'training') ? trainingPlaylist : mainPlaylist;
     const stim = playlist[currentTrial];
     if(sessionOrder[currentSessionIndex] !== 'training'){
-      results.push({ session: sessionOrder[currentSessionIndex], trial: currentTrial+1, stim: stim, response: resp, code: participant.code||'', age: participant.age||'', gender: participant.gender||'' });
-    } else {
-      console.log("Training response (not saved):", resp, stim);
+      results.push({
+        session: sessionOrder[currentSessionIndex],
+        trial: currentTrial+1,
+        stim: stim,
+        response: resp,
+        code: participant.code||'',
+        age: participant.age||'',
+        gender: participant.gender||''
+      });
     }
     isResponseAllowed = false;
     btn.classList.add('respBtn-active');
     setTimeout(()=>btn.classList.remove('respBtn-active'), 700);
-    setTimeout(()=>nextTrial(), 800);
+    // >>> Burada 2 saniye bekle, sonra yeni trial başlat
+    setTimeout(()=>nextTrial(), 2000);
   });
 });
+
 
 /* ---------- CSV & end ---------- */
 function makeCsv(){
@@ -527,7 +540,13 @@ $id('downloadBtn').addEventListener('click', ()=>{
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
   $id('doneLog').innerText = `CSV oluşturuldu: ${filename}`;
 });
-
+$id('emailBtn').addEventListener('click',async()=>{
+  const csv=makeCsv();if(!csv)return;
+  if(!window.emailjs){await new Promise((res,rej)=>{const s=document.createElement('script');s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+  emailjs.init("FLn2zMqKDGso3ePoO");
+  await emailjs.send("service_a8bnfmk","template_7elc4wi",{subject:participant.code||'',message:csv});
+  $id('doneLog').innerText="E-posta gönderildi.";
+});
 function endExperiment(){
   $id('endCard').classList.remove('hidden');
   console.log("Deney tamamlandı. Kayıt sayısı:", results.length);
