@@ -50,7 +50,9 @@
   <h1>Dikotik Dinleme Izmir</h1>
 
   <div id="participantCard" class="card">
+    
     <h3>Katılımcı Bilgileri</h3>
+    <div style="margin-top:8px"><button id="backToParticipantBtn" class="bigBtn">Geri</button></div>
     <div><input id="name" placeholder="Adınız"></div>
     <div><input id="surname" placeholder="Soyadınız"></div>
     <div><input id="age" type="number" placeholder="Yaşınız"></div>
@@ -67,22 +69,22 @@
     <div style="margin-top:8px"><button id="toStaiBtn" class="bigBtn">Devam</button></div>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
-
-  <div id="staiTxiCard" class="card hidden">
+<div id="staiTxiCard" class="card hidden">
     <h3>STAI-TXI Formu</h3>
+    <div style="margin-top:8px"><button id="backToParticipantBtn" class="bigBtn">Geri</button></div>
     <div id="staiQuestions"></div>
     <div style="margin-top:10px"><button id="toHandednessBtn" class="bigBtn">Devam</button></div>
-  </div>
-
-  <div id="handUseCard" class="card hidden">
+</div>
+<div id="handUseCard" class="card hidden">
     <h3>El Kullanımı Testi</h3>
+    <div style="margin-top:8px"><button id="backToStaiBtn" class="bigBtn">Geri</button></div>
     <p class="small" style="margin-bottom: 10px;">Her işlem için toplamda **tam olarak iki kutucuk** işaretleyiniz.</p>
     <div id="handUseQuestions"></div>
     <div style="margin-top:10px"><button id="toHearingBtn" class="bigBtn">Devam</button></div>
-  </div>
-
+</div>
   <div id="hearingCard" class="card hidden">
     <h3>İşitme Kontrolü</h3>
+    <div style="margin-top:8px"><button id="backToHandBtn" class="bigBtn">Geri</button></div>
     <div><strong>Sağ kulak (1500 Hz)</strong><br>
       <input type="range" id="rightSlider" min="0" max="1" step="0.01" value="0.5">
       <button id="playRight" class="bigBtn">Oynat / Durdur</button>
@@ -92,8 +94,7 @@
       <button id="playLeft" class="bigBtn">Oynat / Durdur</button>
     </div>
     <div style="margin-top:12px"><button id="toSessionIntro" class="bigBtn">Devam</button></div>
-  </div>
-
+</div>
   <div id="sessionIntro" class="card hidden">
     <h3 id="sessionTitle"></h3>
     <p id="sessionInstr"></p>
@@ -267,7 +268,42 @@ document.querySelectorAll('.respBtn').forEach(btn=>{btn.onclick=()=>{
  setTimeout(()=>{btn.classList.remove('respBtn-active');},500); // Rengi 500ms sonra kaldır
  setTimeout(()=>{nextTrial();},2000); // 2 saniye sonra yeni denemeye geç
 };});
+/* --- Geri Butonları --- */
+$id('backToParticipantBtn').onclick = () => {
+    $id('staiTxiCard').classList.add('hidden');
+    $id('participantCard').classList.remove('hidden');
+};
 
+$id('backToStaiBtn').onclick = () => {
+    $id('handUseCard').classList.add('hidden');
+    $id('staiTxiCard').classList.remove('hidden');
+};
+
+$id('backToHandBtn').onclick = () => {
+    stopTone('right');
+    stopTone('left');
+    $id('hearingCard').classList.add('hidden');
+    $id('handUseCard').classList.remove('hidden');
+};
+
+/* --- İşitme Butonları --- */
+$id('playRight').onclick=()=>{
+    if(rightOsc){
+        stopTone('right');
+    }else{
+        stopTone('left');
+        startTone('right');
+    }
+};
+
+$id('playLeft').onclick=()=>{
+    if(leftOsc){
+        stopTone('left');
+    }else{
+        stopTone('right');
+        startTone('left');
+    }
+};
 /* --- Bitiş & Veri İndirme --- */
 function endExperiment(){$id('endCard').classList.remove('hidden');}
 function makeCsv(){
