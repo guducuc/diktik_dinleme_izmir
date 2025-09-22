@@ -169,14 +169,25 @@ $id('toStaiBtn').addEventListener('click',()=>{
 });
 
 // === STAI formu ===
+  <script>
 function renderStaiTxiForm(){
-  const c=$id('staiQuestions');c.innerHTML='';
-  staiQuestions.forEach((q,i)=>{c.innerHTML+=`<div class="question-group">${i+1}. ${q}<br>
-  <label><input type="radio" name="staiQ${i}" value="1">Hiç</label>
-  <label><input type="radio" name="staiQ${i}" value="2">Biraz</label>
-  <label><input type="radio" name="staiQ${i}" value="3">Çok</label>
-  <label><input type="radio" name="staiQ${i}" value="4">Tamamıyla</label></div>`;});
+  const c=$id('staiQuestions');
+  c.innerHTML='';
+  staiQuestions.forEach((q,i)=>{
+    c.innerHTML+=`
+      <div class="question-group">
+        <div><strong>${i+1}. ${q}</strong></div>
+        <div style="display:flex;gap:20px;margin-top:4px;">
+          <label><input type="radio" name="staiQ${i}" value="1"> Hiç</label>
+          <label><input type="radio" name="staiQ${i}" value="2"> Biraz</label>
+          <label><input type="radio" name="staiQ${i}" value="3"> Çok</label>
+          <label><input type="radio" name="staiQ${i}" value="4"> Tamamıyla</label>
+        </div>
+      </div>`;
+  });
 }
+</script>
+
 $id('toHandednessBtn').addEventListener('click',()=>{
   const answered=document.querySelectorAll('#staiQuestions input:checked').length;
   if(answered<staiQuestions.length){alert("Tüm STAI sorularını yanıtlayın");return;}
