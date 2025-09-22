@@ -194,16 +194,38 @@ $id('toHandednessBtn').addEventListener('click',()=>{
 });
 
 // === El kullanımı formu ===
-function renderHandUseForm(){
-  const c=$id('handUseQuestions');
-  c.innerHTML=`<div class="hand-header"><div style="flex:2"></div><div style="flex:1;text-align:center">Sol</div><div style="flex:1;text-align:center">Sağ</div></div>`;
-  handUseQuestions.forEach((q,i)=>{const id="handQ"+i;c.innerHTML+=`<div class="hand-row" data-question-id="${id}"><span>${i+1}. ${q}</span><div class="hand-col"><input type="checkbox" class="left-option"><input type="checkbox" class="left-option"></div><div class="hand-col"><input type="checkbox" class="right-option"><input type="checkbox" class="right-option"></div></div>`;});
-}
-$id('toHearingRightBtn').addEventListener('click',()=>{
-  participant.handUseAnswers={};
-  $id('handUseCard').classList.add('hidden');$id('hearingRightCard').classList.remove('hidden');
-});
+function renderHandUseForm() {
+  const container = $id('handUseQuestions');
+  container.innerHTML = '';
 
+  // Başlık
+  container.innerHTML += `
+    <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:8px;">
+      <div style="flex:2;"></div>
+      <div style="flex:1; text-align:center;">Sol</div>
+      <div style="flex:1; text-align:center;">Sağ</div>
+    </div>
+  `;
+
+  handUseQuestions.forEach((q, i) => {
+    const questionId = `handQ${i+1}`;
+    const questionHtml = `
+      <div class="question-group" data-question-id="${questionId}" 
+           style="display:flex; align-items:center; border-top:1px solid #eee; padding:6px 0;">
+        <div style="flex:2;">${i+1}. ${q}</div>
+        <div style="flex:1; display:flex; justify-content:center; gap:10px;">
+          <input type="checkbox" class="left-option" name="${questionId}-sol-1">
+          <input type="checkbox" class="left-option" name="${questionId}-sol-2">
+        </div>
+        <div style="flex:1; display:flex; justify-content:center; gap:10px;">
+          <input type="checkbox" class="right-option" name="${questionId}-sag-1">
+          <input type="checkbox" class="right-option" name="${questionId}-sag-2">
+        </div>
+      </div>
+    `;
+    container.innerHTML += questionHtml;
+  });
+}
 // === İşitme testi ===
 $id('playRight').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('rightSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
 $id('playLeft').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('leftSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
