@@ -283,9 +283,8 @@ function playStim(stim){
       });
     }
     nextTrial();
-  }, 5000); // Yanıt için 5 saniye bekle
+  }, 4000); // Yanıt için 4 saniye bekle
 }
-/* --- Yanıt Butonları --- */
 /* --- Yanıt Butonları --- */
 document.querySelectorAll('.respBtn').forEach(btn=>{btn.onclick=()=>{
  if(!isResponseAllowed)return;isResponseAllowed=false;clearTimeout(trialTimeout);
@@ -308,7 +307,7 @@ document.querySelectorAll('.respBtn').forEach(btn=>{btn.onclick=()=>{
  }
  btn.classList.add('respBtn-active');
  setTimeout(()=>{btn.classList.remove('respBtn-active');},500); // Rengi 500ms sonra kaldır
- setTimeout(()=>{nextTrial();},2000); // 2 saniye sonra yeni denemeye geç
+ setTimeout(()=>{nextTrial();},2500); // 2,5 saniye sonra yeni denemeye geç
 };});
 /* --- Geri Butonları --- */
 $id('backToParticipantBtn').onclick = () => {
