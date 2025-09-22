@@ -45,6 +45,35 @@
     .hand-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #eee}
     .hand-row span{flex:2}
     .hand-col{flex:1;display:flex;justify-content:center;gap:10px}
+    /* El kullanımı için güvenli grid düzeni */
+    .hand-grid-header {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px;
+  gap: 8px;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.hand-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+}
+.hand-col {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.hand-col input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  transform: scale(1);
+  margin: 0;
+}
+
   </style>
 </head>
 <body>
@@ -194,38 +223,63 @@ $id('toHandednessBtn').addEventListener('click',()=>{
 });
 
 // === El kullanımı formu ===
-function renderHandUseForm() {
+function renderHandUseForm(){
   const container = $id('handUseQuestions');
   container.innerHTML = '';
 
-  // Başlık
-  container.innerHTML += `
-    <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:8px;">
-      <div style="flex:2;"></div>
-      <div style="flex:1; text-align:center;">Sol</div>
-      <div style="flex:1; text-align:center;">Sağ</div>
-    </div>
-  `;
+  // Başlık (soru | sol | sağ)
+  const header = document.createElement('div');
+  header.className = 'hand-grid-header';
+  header.innerHTML = `<div></div><div style="text-align:center">Sol</div><div style="text-align:center">Sağ</div>`;
+  container.appendChild(header);
 
+  // Her soru için bir grid satırı oluştur
   handUseQuestions.forEach((q, i) => {
     const questionId = `handQ${i+1}`;
-    const questionHtml = `
-      <div class="question-group" data-question-id="${questionId}" 
-           style="display:flex; align-items:center; border-top:1px solid #eee; padding:6px 0;">
-        <div style="flex:2;">${i+1}. ${q}</div>
-        <div style="flex:1; display:flex; justify-content:center; gap:10px;">
-          <input type="checkbox" class="left-option" name="${questionId}-sol-1">
-          <input type="checkbox" class="left-option" name="${questionId}-sol-2">
-        </div>
-        <div style="flex:1; display:flex; justify-content:center; gap:10px;">
-          <input type="checkbox" class="right-option" name="${questionId}-sag-1">
-          <input type="checkbox" class="right-option" name="${questionId}-sag-2">
-        </div>
-      </div>
-    `;
-    container.innerHTML += questionHtml;
+    const row = document.createElement('div');
+    row.className = 'hand-grid-row';
+    row.dataset.questionId = questionId;
+
+    // Soru metni
+    const qDiv = document.createElement('div');
+    qDiv.innerText = `${i+1}. ${q}`;
+
+    // Sol kutucuklar (iki adet)
+    const leftCol = document.createElement('div');
+    leftCol.className = 'hand-col';
+    const left1 = document.createElement('input');
+    left1.type = 'checkbox';
+    left1.className = 'left-option';
+    left1.name = `${questionId}-sol-1`;
+    const left2 = document.createElement('input');
+    left2.type = 'checkbox';
+    left2.className = 'left-option';
+    left2.name = `${questionId}-sol-2`;
+    leftCol.appendChild(left1);
+    leftCol.appendChild(left2);
+
+    // Sağ kutucuklar (iki adet)
+    const rightCol = document.createElement('div');
+    rightCol.className = 'hand-col';
+    const right1 = document.createElement('input');
+    right1.type = 'checkbox';
+    right1.className = 'right-option';
+    right1.name = `${questionId}-sag-1`;
+    const right2 = document.createElement('input');
+    right2.type = 'checkbox';
+    right2.className = 'right-option';
+    right2.name = `${questionId}-sag-2`;
+    rightCol.appendChild(right1);
+    rightCol.appendChild(right2);
+
+    // Birleştir
+    row.appendChild(qDiv);
+    row.appendChild(leftCol);
+    row.appendChild(rightCol);
+    container.appendChild(row);
   });
 }
+
 // === İşitme testi ===
 $id('playRight').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('rightSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
 $id('playLeft').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('leftSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
