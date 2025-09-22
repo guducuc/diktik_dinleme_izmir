@@ -10,7 +10,7 @@
   <meta name="emailjs-template"content="template_7elc4wi">
 
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:12px;color:#111;max-width:600px;margin:auto}
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:12px;color:#111;max-width:700px;margin:auto}
     h1{text-align:center}
     .hidden{display:none}
     .card{padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:12px}
@@ -41,6 +41,10 @@
     }
     .small{font-size:13px;color:#666}
     .question-group{margin-bottom:12px}
+    .hand-header{display:flex;justify-content:space-between;font-weight:600;margin-bottom:6px}
+    .hand-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid #eee}
+    .hand-row span{flex:2}
+    .hand-col{flex:1;display:flex;justify-content:center;gap:10px}
   </style>
 </head>
 <body>
@@ -65,6 +69,7 @@
 <!-- STAI -->
 <div id="staiTxiCard" class="card hidden">
   <h3>STAI-TXI Formu</h3>
+  <p class="small">Her ifadeyi okuyun ve şu anda nasıl hissettiğinizi en uygun seçeneği işaretleyerek belirtin.</p>
   <div id="staiQuestions"></div>
   <button id="backToParticipantBtn">Geri</button>
   <button id="toHandednessBtn">Devam</button>
@@ -132,14 +137,28 @@
 let participant={},results=[],currentTrial=-1,sessionOrder=[],currentSessionIndex=0;
 let rightLevel=0.5,leftLevel=0.5,isResponseAllowed=false,trialTimeout=null;
 
+// === Playlistler ===
 const trainingPlaylist=["LBA-RBA.wav","LDA-RDA.wav","LGA-RGA.wav","LKA-RKA.wav","LPA-RPA.wav","LTA-RTA.wav","LBA-RDA.wav","LDA-RGA.wav","LGA-RKA.wav","LKA-RTA.wav"];
 const mainPlaylist=["LBA-RKA.wav","LDA-RGA.wav","LPA-RBA.wav","LKA-RDA.wav","LBA-RBA.wav","LTA-RGA.wav","LBA-RDA.wav","LGA-RPA.wav","LDA-RKA.wav","LPA-RTA.wav","LKA-RKA.wav","LBA-RGA.wav","LKA-RPA.wav","LTA-RDA.wav","LGA-RKA.wav","LPA-RDA.wav","LGA-RGA.wav","LBA-RTA.wav","LGA-RDA.wav","LKA-RTA.wav","LDA-RPA.wav","LTA-RKA.wav","LPA-RPA.wav","LDA-RBA.wav","LGA-RTA.wav","LPA-RKA.wav","LTA-RBA.wav","LKA-RGA.wav","LTA-RTA.wav","LBA-RPA.wav","LDA-RTA.wav","LGA-RBA.wav","LTA-RPA.wav","LDA-RDA.wav","LKA-RBA.wav","LPA-RGA.wav"];
 
+// === STAI soruları (20) ===
+const staiQuestions=[
+"Şu anda sakinim","Kendimi emniyette hissediyorum","Şu anda sinirlerim gergin","Pişmanlık duygusu içindeyim",
+"Şu anda huzur içindeyim","Şu anda hiç keyfim yok","Başıma geleceklerden endişe ediyorum","Kendimi dinlenmiş hissediyorum",
+"Şu anda kaygılıyım","Kendimi rahat hissediyorum","Kendime güvenim var","Şu anda asabım bozuk",
+"Çok sinirliyim","Sinirlerimin çok gergin olduğunu hissediyorum","Kendimi rahatlamış hissediyorum","Şu anda halimden memnunum",
+"Şu anda endişeliyim","Heyecandan kendimi şaşkına dönmüş hissediyorum","Şu anda sevinçliyim","Şu anda keyfim yerinde"
+];
+
+// === El kullanımı (10) ===
+const handUseQuestions=["Yazmak","Çizmek","Taş atmak","Makas kullanmak","Diş fırçası kullanmak","Bıçak kullanmak","Kaşık kullanmak","Süpürge kullanmak (üst el)","Kibrit çakmak","Kutunun kapağını açmak"];
+
+// === UI kısayol ===
 function $id(x){return document.getElementById(x);}
 
-// Katılımcı kodu
+// === Katılımcı kodu ===
 $id('toStaiBtn').addEventListener('click',()=>{
-  if(!$id('name').value||!$id('surname').value){alert("Ad Soyad giriniz");return;}
+  if(!$id('name').value||!$id('surname').value||!$id('age').value||!$id('gender').value||!$id('race').value||!$id('motherTongue').value){alert("Tüm bilgileri doldurun");return;}
   const n=$id('name').value.slice(0,2).toUpperCase();
   const s=$id('surname').value.slice(0,2).toUpperCase();
   participant.code=n+s+"_"+Math.floor(10000+Math.random()*90000);
@@ -147,44 +166,43 @@ $id('toStaiBtn').addEventListener('click',()=>{
   participant.race=$id('race').value;participant.motherTongue=$id('motherTongue').value;
   $id('participantCard').classList.add('hidden');$id('staiTxiCard').classList.remove('hidden');
   renderStaiTxiForm();
-  $id('codeInfo').innerText="Katılımcı kodu: "+participant.code;
 });
 
-// STAI
-const staiQuestions=["Sakinim","Emniyetteyim","Sinirlerim gergin","Pişmanım"];
+// === STAI formu ===
 function renderStaiTxiForm(){
   const c=$id('staiQuestions');c.innerHTML='';
   staiQuestions.forEach((q,i)=>{c.innerHTML+=`<div class="question-group">${i+1}. ${q}<br>
   <label><input type="radio" name="staiQ${i}" value="1">Hiç</label>
   <label><input type="radio" name="staiQ${i}" value="2">Biraz</label>
-  <label><input type="radio" name="staiQ${i}" value="3">Çok</label></div>`;});
+  <label><input type="radio" name="staiQ${i}" value="3">Çok</label>
+  <label><input type="radio" name="staiQ${i}" value="4">Tamamıyla</label></div>`;});
 }
 $id('toHandednessBtn').addEventListener('click',()=>{
   const answered=document.querySelectorAll('#staiQuestions input:checked').length;
   if(answered<staiQuestions.length){alert("Tüm STAI sorularını yanıtlayın");return;}
   participant.staiAnswers={};document.querySelectorAll('#staiQuestions input:checked').forEach(x=>participant.staiAnswers[x.name]=x.value);
-  $id('staiTxiCard').classList.add('hidden');$id('handUseCard').classList.remove('hidden');
-  renderHandUseForm();
+  $id('staiTxiCard').classList.add('hidden');$id('handUseCard').classList.remove('hidden');renderHandUseForm();
 });
 
-// El Kullanımı
-const handUseQuestions=["Yazmak","Çizmek","Taş Atmak"];
+// === El kullanımı formu ===
 function renderHandUseForm(){
-  const c=$id('handUseQuestions');c.innerHTML=`<div style="display:flex;justify-content:space-between;font-weight:600"><div style="flex:2"></div><div style="width:60px;text-align:center">Sol</div><div style="width:60px;text-align:center">Sağ</div></div>`;
-  handUseQuestions.forEach((q,i)=>{const id="handQ"+i;c.innerHTML+=`<div class="question-group" data-question-id="${id}"><div style="display:flex;justify-content:space-between"><div style="flex:2">${i+1}. ${q}</div><div style="flex:1;text-align:center"><input type="checkbox" class="left-option"></div><div style="flex:1;text-align:center"><input type="checkbox" class="right-option"></div></div></div>`;});
+  const c=$id('handUseQuestions');
+  c.innerHTML=`<div class="hand-header"><div style="flex:2"></div><div style="flex:1;text-align:center">Sol</div><div style="flex:1;text-align:center">Sağ</div></div>`;
+  handUseQuestions.forEach((q,i)=>{const id="handQ"+i;c.innerHTML+=`<div class="hand-row" data-question-id="${id}"><span>${i+1}. ${q}</span><div class="hand-col"><input type="checkbox" class="left-option"><input type="checkbox" class="left-option"></div><div class="hand-col"><input type="checkbox" class="right-option"><input type="checkbox" class="right-option"></div></div>`;});
 }
 $id('toHearingRightBtn').addEventListener('click',()=>{
   participant.handUseAnswers={};
   $id('handUseCard').classList.add('hidden');$id('hearingRightCard').classList.remove('hidden');
 });
 
-// İşitme testi
+// === İşitme testi ===
 $id('playRight').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('rightSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
+$id('playLeft').addEventListener('click',()=>{const a=new AudioContext();const o=a.createOscillator();const g=a.createGain();o.frequency.value=1500;g.gain.value=$id('leftSlider').value;o.connect(g).connect(a.destination);o.start();setTimeout(()=>o.stop(),1000);});
 $id('confirmRightEarBtn').addEventListener('click',()=>{$id('leftEarControls').classList.remove('hidden');$id('confirmRightEarBtn').classList.add('hidden');$id('toSessionIntro').classList.remove('hidden');});
 $id('toSessionIntro').addEventListener('click',()=>{$id('hearingRightCard').classList.add('hidden');sessionOrder=['training','NF',...shuffle(['FR','FL'])];currentSessionIndex=0;showSessionIntro();});
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// Session
+// === Session ===
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function showSessionIntro(){const s=sessionOrder[currentSessionIndex];$id('sessionTitle').innerText="Oturum: "+s;$id('sessionInstr').innerText="Yönerge";$id('sessionIntro').classList.remove('hidden');}
 $id('sessionStartBtn').addEventListener('click',()=>{$id('sessionIntro').classList.add('hidden');$id('waitScreen').classList.remove('hidden');setTimeout(()=>{$id('waitScreen').classList.add('hidden');startSession();},10000);});
 
@@ -192,7 +210,7 @@ function startSession(){currentTrial=-1;$id('trialCard').classList.remove('hidde
 async function playStim(stim,session){const a=$id('stimAudio');a.src="/sounds/erkek/"+stim;await a.play();isResponseAllowed=false;setTimeout(()=>{isResponseAllowed=true;},500);const delay=(session==="training")?4000:5000;trialTimeout=setTimeout(()=>{if(sessionOrder[currentSessionIndex]!=="training"){results.push({session:sessionOrder[currentSessionIndex],trial:currentTrial+1,stim:stim,response:"no_response",code:participant.code});}nextTrial();},delay);}
 function nextTrial(){currentTrial++;const playlist=(sessionOrder[currentSessionIndex]==="training")?trainingPlaylist:mainPlaylist;if(currentTrial>=playlist.length){$id('trialCard').classList.add('hidden');currentSessionIndex++;if(currentSessionIndex<sessionOrder.length){showSessionIntro();}else{endExperiment();}return;}const stim=playlist[currentTrial];$id('trialStatus').innerText="Deneme "+(currentTrial+1)+"/"+playlist.length;playStim(stim,sessionOrder[currentSessionIndex]);}
 document.querySelectorAll('.respBtn').forEach(btn=>btn.addEventListener('click',()=>{if(!isResponseAllowed){alert("Bekleyin");return;}if(trialTimeout){clearTimeout(trialTimeout);trialTimeout=null;}const resp=btn.dataset.val;const playlist=(sessionOrder[currentSessionIndex]==="training")?trainingPlaylist:mainPlaylist;const stim=playlist[currentTrial];if(sessionOrder[currentSessionIndex]!=="training"){results.push({session:sessionOrder[currentSessionIndex],trial:currentTrial+1,stim:stim,response:resp,code:participant.code});}btn.classList.add('respBtn-active');setTimeout(()=>btn.classList.remove('respBtn-active'),700);setTimeout(()=>nextTrial(),2000);}));
-// End
+// === End & CSV ===
 function endExperiment(){$id('endCard').classList.remove('hidden');}
 function makeCsv(){const rows=[{...participant,stai:JSON.stringify(participant.staiAnswers),hand:JSON.stringify(participant.handUseAnswers)},...results];const keys=Object.keys(rows[0]);return[keys.join(','),...rows.map(r=>keys.map(k=>r[k]||'').join(','))].join('\n');}
 $id('downloadBtn').addEventListener('click',()=>{const csv=makeCsv();const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=participant.code+".csv";a.click();URL.revokeObjectURL(url);});
