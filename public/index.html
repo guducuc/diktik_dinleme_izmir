@@ -228,7 +228,7 @@ $id('toHearingBtn').onclick=()=>{let ok=true;const groups=document.querySelector
 $id('toSessionIntro').onclick=()=>{stopTone('right');stopTone('left');
  results.push({session:"hearing_level",stim:"1500Hz",response:`right=${rightLevel},left=${leftLevel}`});
  $id('hearingCard').classList.add('hidden');
- sessionOrder=['training',...shuffle(['NF','FR','FL'])];currentSessionIndex=0;
+ sessionOrder=['training','NF',...shuffle(['FR','FL'])];currentSessionIndex=0;
  showSessionIntro();};
 
 /* --- İşitme Butonları --- */
