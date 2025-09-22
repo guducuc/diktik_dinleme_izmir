@@ -253,16 +253,58 @@ function nextTrial(){clearTimeout(trialTimeout);const sessionType=sessionOrder[c
   currentSessionIndex++;if(currentSessionIndex<sessionOrder.length){showSessionIntro();}else{endExperiment();}return;}
  const stim=playlist[currentTrial];$id('trialStatus').innerText=`Deneme ${currentTrial+1}/${playlist.length} (${sessionType})`;
  playStim(stim);}
-function playStim(stim){const a=$id('stimAudio');isResponseAllowed=false;a.src=CONFIG.AUDIO_PATH+stim;a.play();
- a.onplaying=()=>setTimeout(()=>{isResponseAllowed=true;},500);
- trialTimeout=setTimeout(()=>{results.push({session:sessionOrder[currentSessionIndex],trial:currentTrial+1,stim,response:"no_response"});nextTrial();},5000);}
+function playStim(stim){
+  const a = $id('stimAudio');
+  isResponseAllowed = false;
+  a.src = CONFIG.AUDIO_PATH + stim;
+  a.play();
 
+  a.onplaying = () => {
+    setTimeout(() => {
+      isResponseAllowed = true;
+    }, 500); // Yanıt gecikmesi
+  };
+
+  trialTimeout = setTimeout(() => {
+    // Eğitim oturumu dışındaki durumlarda "no_response" bilgisini kaydet
+    if (sessionOrder[currentSessionIndex] !== 'training') {
+      results.push({
+        session: sessionOrder[currentSessionIndex],
+        trial: currentTrial + 1,
+        stim: stim,
+        response: "no_response",
+        rightLevel: "",
+        leftLevel: "",
+        age: participant.age || "",
+        gender: participant.gender || "",
+        race: participant.race || "",
+        motherTongue: participant.motherTongue || "",
+        code: participant.code || ""
+      });
+    }
+    nextTrial();
+  }, 5000); // Yanıt için 5 saniye bekle
+}
+/* --- Yanıt Butonları --- */
 /* --- Yanıt Butonları --- */
 document.querySelectorAll('.respBtn').forEach(btn=>{btn.onclick=()=>{
  if(!isResponseAllowed)return;isResponseAllowed=false;clearTimeout(trialTimeout);
  const resp=btn.dataset.val;const sessionType=sessionOrder[currentSessionIndex];
+ // Eğitim oturumu (training) dışındaki tüm yanıtları kaydet
  if(sessionType!=='training'){
-  results.push({session:sessionType,trial:currentTrial+1,stim:mainPlaylist[currentTrial],response:resp});
+  results.push({
+    session: sessionType,
+    trial: currentTrial+1,
+    stim: mainPlaylist[currentTrial], // mainPlaylist'teki heceyi al
+    response: resp,
+    rightLevel: "", // Dikotik oturum verilerinde bu alanlar boş kalabilir
+    leftLevel: "",
+    age: participant.age || "",
+    gender: participant.gender || "",
+    race: participant.race || "",
+    motherTongue: participant.motherTongue || "",
+    code: participant.code || ""
+  });
  }
  btn.classList.add('respBtn-active');
  setTimeout(()=>{btn.classList.remove('respBtn-active');},500); // Rengi 500ms sonra kaldır
@@ -307,10 +349,40 @@ $id('playLeft').onclick=()=>{
 /* --- Bitiş & Veri İndirme --- */
 function endExperiment(){$id('endCard').classList.remove('hidden');}
 function makeCsv(){
- const allData=[{...participant,staiAnswers:JSON.stringify(participant.staiAnswers),handUseAnswers:JSON.stringify(participant.handUseAnswers)},...results];
- const keys=Object.keys(allData[0]);const header=keys.join(',');
- const rows=allData.map(r=>keys.map(k=>{const v=(r[k]===null||r[k]===undefined)?"":String(r[k]).replace(/,/g,';');return `"${v}"`;}).join(','));
- return [header,...rows].join('\n');}
+  // Tüm verileri birleştir
+  const allData = [
+    {
+      session: "info",
+      trial: 0,
+      stim: "",
+      response: "",
+      rightLevel: "",
+      leftLevel: "",
+      age: participant.age || "",
+      gender: participant.gender || "",
+      race: participant.race || "",
+      motherTongue: participant.motherTongue || "",
+      staiAnswers: JSON.stringify(participant.staiAnswers || {}),
+      handUseAnswers: JSON.stringify(participant.handUseAnswers || {}),
+      code: participant.code || ""
+    },
+    ...results
+  ];
+
+  // CSV başlıklarını belirle
+  const keys = ["session", "trial", "stim", "response", "rightLevel", "leftLevel", "age", "gender", "race", "motherTongue", "staiAnswers", "handUseAnswers", "code"];
+  const header = keys.join(',');
+
+  // Satırları oluştur
+  const rows = allData.map(r => {
+    return keys.map(k => {
+      const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/,/g, ';');
+      return `"${v}"`;
+    }).join(',');
+  });
+
+  return [header, ...rows].join('\n');
+}
 $id('downloadBtn').onclick=()=>{const csv=makeCsv();const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
  const stamp=new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${participant.code}_${stamp}.csv`;a.click();URL.revokeObjectURL(a.href);};
