@@ -76,6 +76,7 @@
 
   <div id="handUseCard" class="card hidden">
     <h3>El Kullanımı Testi</h3>
+    <p class="small" style="margin-bottom: 10px;">Her işlem için toplamda **tam olarak iki kutucuk** işaretleyiniz.</p>
     <div id="handUseQuestions"></div>
     <div style="margin-top:10px"><button id="toHearingBtn" class="bigBtn">Devam</button></div>
   </div>
@@ -222,7 +223,7 @@ $id('toHandednessBtn').onclick=()=>{const answered=document.querySelectorAll('#s
  const ans={};document.querySelectorAll('#staiQuestions input:checked').forEach(i=>ans[i.name]=i.value);participant.staiAnswers=ans;
  $id('staiTxiCard').classList.add('hidden');$id('handUseCard').classList.remove('hidden');renderHand();};
 $id('toHearingBtn').onclick=()=>{let ok=true;const groups=document.querySelectorAll('#handUseQuestions .hand-grid-row');
- for(const g of groups){const c=g.querySelectorAll('input:checked').length;if(c==0||c>2){ok=false;alert("Her işlem için 1 veya 2 kutucuk işaretleyiniz.");break;}}
+ for(const g of groups){const c=g.querySelectorAll('input:checked').length;if(c!==2){ok=false;alert("Her işlem için tam olarak 2 kutucuk işaretleyiniz.");break;}}
  if(!ok)return;const ans={};groups.forEach(g=>{const q=g.dataset.questionId,l=g.querySelectorAll('.left-option:checked').length,r=g.querySelectorAll('.right-option:checked').length;ans[q]={left:l,right:r};});participant.handUseAnswers=ans;
  $id('handUseCard').classList.add('hidden');$id('hearingCard').classList.remove('hidden');};
 $id('toSessionIntro').onclick=()=>{stopTone('right');stopTone('left');
@@ -252,7 +253,7 @@ function nextTrial(){clearTimeout(trialTimeout);const sessionType=sessionOrder[c
  const stim=playlist[currentTrial];$id('trialStatus').innerText=`Deneme ${currentTrial+1}/${playlist.length} (${sessionType})`;
  playStim(stim);}
 function playStim(stim){const a=$id('stimAudio');isResponseAllowed=false;a.src=CONFIG.AUDIO_PATH+stim;a.play();
- a.onplaying=()=>setTimeout(()=>{isResponseAllowed=true},500);
+ a.onplaying=()=>setTimeout(()=>{isResponseAllowed=true;},500);
  trialTimeout=setTimeout(()=>{results.push({session:sessionOrder[currentSessionIndex],trial:currentTrial+1,stim,response:"no_response"});nextTrial();},5000);}
 
 /* --- Yanıt Butonları --- */
@@ -263,7 +264,9 @@ document.querySelectorAll('.respBtn').forEach(btn=>{btn.onclick=()=>{
   results.push({session:sessionType,trial:currentTrial+1,stim:mainPlaylist[currentTrial],response:resp});
  }
  btn.classList.add('respBtn-active');
- setTimeout(()=>{btn.classList.remove('respBtn-active');nextTrial();},2000);};});
+ setTimeout(()=>{btn.classList.remove('respBtn-active');},500); // Rengi 500ms sonra kaldır
+ setTimeout(()=>{nextTrial();},2000); // 2 saniye sonra yeni denemeye geç
+};});
 
 /* --- Bitiş & Veri İndirme --- */
 function endExperiment(){$id('endCard').classList.remove('hidden');}
