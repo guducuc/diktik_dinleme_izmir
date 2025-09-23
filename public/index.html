@@ -200,19 +200,29 @@ function trToEn(s){return s.replace(/Ğ/g,"G").replace(/ğ/g,"g").replace(/İ/g,
 
 /* --- Katılımcı kodu --- */
 function makeCode(){
- const n=trToEn($id('name').value.trim()),s=trToEn($id('surname').value.trim()),
- a=$id('age').value.trim(),g=$id('gender').value.trim(),
- r=$id('race').value.trim(),m=$id('motherTongue').value.trim(),
- p=$id('projectCode').value.trim();
- if(!n||!s||!a||!g||!r||!m||!p){alert("Lütfen tüm alanları doldurunuz.");return false}
- participant={age:a,gender:g,race:r,motherTongue:m,name:n,surname:s,projectCode:p};
- const four=(n.padEnd(2).slice(0,2)+s.padEnd(2).slice(0,2)).toUpperCase().replace(/[^A-Z]/g,'X');
- const rand5=Math.floor(10000+Math.random()*90000);
- participant.code=four+"_"+rand5;
- $id('codeInfo').innerText="Katılımcı kodu: "+participant.code;
- return true;
-}
+  const n=trToEn($id('name').value.trim()),
+  s=trToEn($id('surname').value.trim()),
+  a=$id('age').value.trim(),
+  g=$id('gender').value.trim(),
+  r=$id('race').value.trim(),
+  m=$id('motherTongue').value.trim(),
+  p=$id('projectCode').value.trim();
 
+  if (!n) { alert("Lütfen adınızı giriniz."); return false; }
+  if (!s) { alert("Lütfen soyadınızı giriniz."); return false; }
+  if (!a) { alert("Lütfen yaşınızı giriniz."); return false; }
+  if (!r) { alert("Lütfen ırkınızı/doğum yerinizi giriniz."); return false; }
+  if (!m) { alert("Lütfen anadilinizi giriniz."); return false; }
+  if (!g) { alert("Lütfen cinsiyetinizi seçiniz."); return false; }
+  if (!p) { alert("Lütfen proje kodunuzu seçiniz."); return false; }
+
+  participant={age:a,gender:g,race:r,motherTongue:m,name:n,surname:s,projectCode:p};
+  const four=(n.padEnd(2).slice(0,2)+s.padEnd(2).slice(0,2)).toUpperCase().replace(/[^A-Z]/g,'X');
+  const rand5=Math.floor(10000+Math.random()*90000);
+  participant.code=four+"_"+rand5;
+  $id('codeInfo').innerText="Katılımcı kodu: "+participant.code;
+  return true;
+}
 /* --- İşitme testi --- */
 let audioCtx=null,rightOsc=null,leftOsc=null,rightGain=null,leftGain=null;
 function ensureCtx(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();}
