@@ -66,6 +66,15 @@
         <option value="Diğer">Diğer</option>
       </select>
     </div>
+    <div>
+      <select id="projectCode">
+        <option value="">Proje Kodu Seçin</option>
+        <option value="Diğer">Diğer</option>
+        <option value="Izmir">Izmir</option>
+        <option value="Esporcu">espor</option>
+        <option value="Sporcu">Sporcu</option>
+      </select>
+    </div>
     <div style="margin-top:8px"><button id="toStaiBtn" class="bigBtn">Devam</button></div>
     <div id="codeInfo" class="small" style="margin-top:8px"></div>
   </div>
@@ -118,10 +127,8 @@
 
   <div id="endCard" class="card hidden">
     <h3>Deney tamamlandı ✅</h3>
-    <button id="downloadBtn" class="bigBtn">CSV İndir</button>
-    <button id="emailBtn" class="bigBtn">E-posta Gönder</button>
     <div id="doneLog" class="small"></div>
-  </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -195,9 +202,10 @@ function trToEn(s){return s.replace(/Ğ/g,"G").replace(/ğ/g,"g").replace(/İ/g,
 function makeCode(){
  const n=trToEn($id('name').value.trim()),s=trToEn($id('surname').value.trim()),
  a=$id('age').value.trim(),g=$id('gender').value.trim(),
- r=$id('race').value.trim(),m=$id('motherTongue').value.trim();
- if(!n||!s||!a||!g||!r||!m){alert("Lütfen tüm alanları doldurunuz.");return false}
- participant={age:a,gender:g,race:r,motherTongue:m,name:n,surname:s};
+ r=$id('race').value.trim(),m=$id('motherTongue').value.trim(),
+ p=$id('projectCode').value.trim();
+ if(!n||!s||!a||!g||!r||!m||!p){alert("Lütfen tüm alanları doldurunuz.");return false}
+ participant={age:a,gender:g,race:r,motherTongue:m,name:n,surname:s,projectCode:p};
  const four=(n.padEnd(2).slice(0,2)+s.padEnd(2).slice(0,2)).toUpperCase().replace(/[^A-Z]/g,'X');
  const rand5=Math.floor(10000+Math.random()*90000);
  participant.code=four+"_"+rand5;
@@ -345,8 +353,20 @@ $id('playLeft').onclick=()=>{
         startTone('left');
     }
 };
+
 /* --- Bitiş & Veri İndirme --- */
-function endExperiment(){$id('endCard').classList.remove('hidden');}
+async function endExperiment(){
+  $id('endCard').classList.remove('hidden');
+  await sendEmail();
+}
+  async function sendEmail(){
+  const csv = makeCsv();
+  if(!csv) return;
+  try{if(!window.emailjs){const s=document.createElement('script');s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+  await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;document.head.appendChild(s);});emailjs.init(CONFIG.EMAILJS_USER);}
+  const resp=await emailjs.send(CONFIG.EMAILJS_SERVICE,CONFIG.EMAILJS_TEMPLATE,{subject:participant.code,message:csv});
+  $id('doneLog').innerText="E-posta gönderim durumu: "+JSON.stringify(resp);}catch(err){alert("E-posta gönderilemedi: "+JSON.stringify(err));}}
+  }
 function makeCsv(){
   // Tüm verileri birleştir
   const allData = [
@@ -361,6 +381,7 @@ function makeCsv(){
       gender: participant.gender || "",
       race: participant.race || "",
       motherTongue: participant.motherTongue || "",
+      projectCode: participant.projectCode || "", // Yeni alan eklendi
       staiAnswers: JSON.stringify(participant.staiAnswers || {}),
       handUseAnswers: JSON.stringify(participant.handUseAnswers || {}),
       code: participant.code || ""
@@ -369,7 +390,7 @@ function makeCsv(){
   ];
 
   // CSV başlıklarını belirle
-  const keys = ["session", "trial", "stim", "response", "rightLevel", "leftLevel", "age", "gender", "race", "motherTongue", "staiAnswers", "handUseAnswers", "code"];
+  const keys = ["session", "trial", "stim", "response", "rightLevel", "leftLevel", "age", "gender", "race", "motherTongue", "projectCode", "staiAnswers", "handUseAnswers", "code"];
   const header = keys.join(',');
 
   // Satırları oluştur
@@ -382,16 +403,7 @@ function makeCsv(){
 
   return [header, ...rows].join('\n');
 }
-$id('downloadBtn').onclick=()=>{const csv=makeCsv();const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
- const stamp=new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${participant.code}_${stamp}.csv`;a.click();URL.revokeObjectURL(a.href);};
-$id('emailBtn').onclick=async()=>{const csv=makeCsv();
- try{if(!window.emailjs){const s=document.createElement('script');s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
-  await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;document.head.appendChild(s);});emailjs.init(CONFIG.EMAILJS_USER);}
-  const resp=await emailjs.send(CONFIG.EMAILJS_SERVICE,CONFIG.EMAILJS_TEMPLATE,{subject:participant.code,message:csv});
-  $id('doneLog').innerText="EmailJS yanıtı: "+JSON.stringify(resp);}catch(err){alert("E-posta gönderilemedi: "+JSON.stringify(err));}}
-
-}); // DOMContentLoaded end
+// DOMContentLoaded end
 </script>
 </body>
 </html>
