@@ -365,66 +365,62 @@ $id('playLeft').onclick=()=>{
 };
 
 /* --- Bitiş & Veri İndirme --- */
+/* --- Bitiş & Veri İndirme --- */
 async function endExperiment(){
-  $id('endCard').classList.remove('hidden');
-  await sendEmail();
+  $id('endCard').classList.remove('hidden');
+  await sendEmail();
 }
-  async function sendEmail(){
-    const csv = makeCsv();
-    if(!csv) return;
-    try{
-        if(!window.emailjs){
-            const s=document.createElement('script');
-            s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
-            await new Promise((res,rej)=>{
-                s.onload=res;s.onerror=rej;
-                document.head.appendChild(s);
-            });
-            emailjs.init(CONFIG.EMAILJS_USER);
-        }
-        const resp=await emailjs.send(CONFIG.EMAILJS_SERVICE,CONFIG.EMAILJS_TEMPLATE,{subject:participant.code,message:csv});
-        $id('doneLog').innerText="E-posta gönderim durumu: "+JSON.stringify(resp);
-    }catch(err){
-        alert("E-posta gönderilemedi: "+JSON.stringify(err));
-    }
+async function sendEmail(){
+    const csv = makeCsv();
+    if(!csv) return;
+    try{
+        if(!window.emailjs){
+            const s=document.createElement('script');
+            s.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+            await new Promise((res,rej)=>{
+                s.onload=res;s.onerror=rej;
+                document.head.appendChild(s);
+            });
+            emailjs.init(CONFIG.EMAILJS_USER);
+        }
+        const resp=await emailjs.send(CONFIG.EMAILJS_SERVICE,CONFIG.EMAILJS_TEMPLATE,{subject:participant.code,message:csv});
+        $id('doneLog').innerText="E-posta gönderim durumu: "+JSON.stringify(resp);
+    }catch(err){
+        alert("E-posta gönderilemedi: "+JSON.stringify(err));
+    }
 }
-  function makeCsv(){
-    // Tüm verileri birleştir
-    const allData = [
-        {
-            session: "info",
-            trial: 0,
-            stim: "",
-            response: "",
-            rightLevel: participant.rightLevel || "",
-            leftLevel: participant.leftLevel || "",
-            age: participant.age || "",
-            gender: participant.gender || "",
-            race: participant.race || "",
-            motherTongue: participant.motherTongue || "",
-            projectCode: participant.projectCode || "", // Yeni alan eklendi
-            staiAnswers: JSON.stringify(participant.staiAnswers || {}),
-            handUseAnswers: JSON.stringify(participant.handUseAnswers || {}),
-            code: participant.code || ""
-        },
-        ...results
-    ];
-
-    // CSV başlıklarını belirle
-    const keys = ["session", "trial", "stim", "response", "rightLevel", "leftLevel", "age", "gender", "race", "motherTongue", "projectCode", "staiAnswers", "handUseAnswers", "code"];
-    const header = keys.join(',');
-
-    // Satırları oluştur
-    const rows = allData.map(r => {
-        return keys.map(k => {
-            const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/,/g, ';');
-            return `"${v}"`;
-        }).join(',');
-    });
-
-    return [header, ...rows].join('\n');
+function makeCsv(){
+    // Tüm verileri birleştir
+    const allData = [
+        {
+            session: "info",
+            trial: 0,
+            stim: "",
+            response: "",
+            rightLevel: participant.rightLevel || "",
+            leftLevel: participant.leftLevel || "",
+            age: participant.age || "",
+            gender: participant.gender || "",
+            race: participant.race || "",
+            motherTongue: participant.motherTongue || "",
+            projectCode: participant.projectCode || "", // Yeni alan eklendi
+            staiAnswers: JSON.stringify(participant.staiAnswers || {}),
+            handUseAnswers: JSON.stringify(participant.handUseAnswers || {}),
+            code: participant.code || ""
+        },
+        ...results
+    ];
+    const keys = ["session", "trial", "stim", "response", "rightLevel", "leftLevel", "age", "gender", "race", "motherTongue", "projectCode", "staiAnswers", "handUseAnswers", "code"];
+    const header = keys.join(',');
+    const rows = allData.map(r => {
+        return keys.map(k => {
+            const v = (r[k] === null || r[k] === undefined) ? "" : String(r[k]).replace(/,/g, ';');
+            return `"${v}"`;
+        }).join(',');
+    });
+    return [header, ...rows].join('\n');
 }
-// DOMContentLoaded end
+  // DOMContentLoaded end
 </script>
 </body>
 </html>
