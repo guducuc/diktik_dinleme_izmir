@@ -270,7 +270,7 @@ function showSessionIntro(){const s=sessionOrder[currentSessionIndex];$id('sessi
 async function unlockAudio(){try{const a=$id('stimAudio');a.src=CONFIG.AUDIO_PATH+"silence.wav";await a.play();}catch(e){console.warn("Audio unlock failed.");}}
 $id('sessionStartBtn').onclick=async ()=>{$id('sessionIntro').classList.add('hidden');
  await unlockAudio();$id('waitScreen').classList.remove('hidden');
- setTimeout(()=>{ $id('waitScreen').classList.add('hidden'); startSession(); }, 2000);};
+ setTimeout(()=>{ $id('waitScreen').classList.add('hidden'); startSession(); }, 3000);};
 function startSession(){currentTrial=-1;$id('trialCard').classList.remove('hidden');nextTrial();}
 function nextTrial(){clearTimeout(trialTimeout);const sessionType=sessionOrder[currentSessionIndex];
  const playlist=(sessionType==='training')?trainingPlaylist:mainPlaylist;
